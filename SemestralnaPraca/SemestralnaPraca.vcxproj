@@ -128,10 +128,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Reader.cpp" />
     <ClCompile Include="SemestralnaPraca.cpp" />
     <ClCompile Include="Town.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Reader.h" />
     <ClInclude Include="Town.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
