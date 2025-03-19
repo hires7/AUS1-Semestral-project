@@ -337,19 +337,17 @@ namespace ds::amt {
 	}
 
 	template<typename DataType>
-    size_t CyclicImplicitSequence<DataType>::indexOfNext(size_t currentIndex) const
+	size_t CyclicImplicitSequence<DataType>::indexOfNext(size_t currentIndex) const
 	{
-		// TODO 03
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		const size_t size = this->size();
+		return size != 0 ? currentIndex >= size - 1 ? 0 : currentIndex + 1 : INVALID_INDEX;
 	}
 
 	template<typename DataType>
-    size_t CyclicImplicitSequence<DataType>::indexOfPrevious(size_t currentIndex) const
+	size_t CyclicImplicitSequence<DataType>::indexOfPrevious(size_t currentIndex) const
 	{
-		// TODO 03
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		const size_t size = this->size();
+		return size != 0 ? currentIndex <= 0 ? size - 1 : currentIndex - 1 : INVALID_INDEX;
 	}
 
 }
