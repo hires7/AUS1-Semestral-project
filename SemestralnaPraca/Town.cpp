@@ -58,29 +58,35 @@ void Town::setPopulation2024(size_t population)
 	this->population2024_ = population;
 }
 
-size_t Town::getPopulation2020()
+size_t Town::getPopulation(int year) const
 {
-	return this->population2020_;
+	switch (year)
+	{
+	case 2020:
+		return this->population2020_;
+		break;
+	case 2021:
+		return this->population2021_;
+		break;
+	case 2022:
+		return this->population2022_;
+		break;
+	case 2023:
+		return this->population2023_;
+		break;
+	case 2024:
+		return this->population2024_;
+		break;
+	default:
+		return 0;
+		break;
+	}
 }
 
-size_t Town::getPopulation2021()
-{
-	return this->population2021_;
-}
 
-size_t Town::getPopulation2022()
+std::string Town::getName() const
 {
-	return this->population2022_;
-}
-
-size_t Town::getPopulation2023()
-{
-	return this->population2023_;
-}
-
-size_t Town::getPopulation2024()
-{
-	return this->population2024_;
+	return this->name_;
 }
 
 size_t Town::getCode()

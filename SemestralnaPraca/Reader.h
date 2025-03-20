@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <string>
+#include <functional>
 #include "Town.h"
 
 class Reader {

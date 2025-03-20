@@ -61,3 +61,4 @@ std::vector<Town> Reader::readData(const std::vector<std::string>& filenames) {
 
     return towns;
 }
+

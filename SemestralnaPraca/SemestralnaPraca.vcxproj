@@ -128,20 +128,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Filter.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="SemestralnaPraca.cpp" />
     <ClCompile Include="Town.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Filter.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Town.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\2020.csv" />
-    <None Include="..\..\..\2021.csv" />
-    <None Include="..\..\..\2022.csv" />
-    <None Include="..\..\..\2023.csv" />
-    <None Include="..\..\..\2024.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

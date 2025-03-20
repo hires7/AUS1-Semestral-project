@@ -22,11 +22,8 @@ class Town
 		void setPopulation2022(size_t population);
 		void setPopulation2023(size_t population);
 		void setPopulation2024(size_t population);
-		size_t getPopulation2020();
-		size_t getPopulation2021();
-		size_t getPopulation2022();
-		size_t getPopulation2023();
-		size_t getPopulation2024();
+		size_t getPopulation(int year) const;
+		std::string getName() const;
 		size_t getCode();
 		~Town();
 		std::string toString() const;

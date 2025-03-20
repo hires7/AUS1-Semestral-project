@@ -24,6 +24,9 @@
     <ClCompile Include="Reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Town.h">
@@ -32,12 +35,8 @@
     <ClInclude Include="Reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\2020.csv" />
-    <None Include="..\..\..\2021.csv" />
-    <None Include="..\..\..\2022.csv" />
-    <None Include="..\..\..\2023.csv" />
-    <None Include="..\..\..\2024.csv" />
+    <ClInclude Include="Filter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
