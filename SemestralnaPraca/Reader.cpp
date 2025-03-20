@@ -1,4 +1,3 @@
-// Reader.cpp
 #include "Reader.h"
 #include <fstream>
 #include <sstream>
