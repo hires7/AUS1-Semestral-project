@@ -17,10 +17,10 @@ int main() {
         towns.begin(),
         towns.end(),
         std::back_inserter(filteredTowns),
-        Filter::byName("Gast") //ö
+        Filter::byName("Braunau")
     );
 
-    std::cout << "Filtered towns:\n";
+    std::cout << "Vyfiltrovane obce:\n";
     for (const auto& town : filteredTowns) {
         std::cout << town.toString() << "\n";
     }
