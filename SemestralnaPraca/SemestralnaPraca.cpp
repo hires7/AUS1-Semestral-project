@@ -17,7 +17,7 @@ int main() {
         towns.begin(),
         towns.end(),
         std::back_inserter(filteredTowns),
-        Filter::byName("Braunau")
+        Filter::byName("ien")
     );
 
     std::cout << "Vyfiltrovane obce:\n";
