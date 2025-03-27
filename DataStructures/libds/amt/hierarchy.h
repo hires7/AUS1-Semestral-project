@@ -222,49 +222,70 @@ namespace ds::amt {
 	template<typename BlockType>
     bool Hierarchy<BlockType>::isRoot(const BlockType& node) const
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return this->accessParent(node) == NULL;
 	}
 
 	template<typename BlockType>
     bool Hierarchy<BlockType>::isNthSon(const BlockType& node, size_t sonOrder) const
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		BlockType* parent = this->accessParent(node);
+		return parent != NULL && this->accessSon(*parent, sonOrder) == &node;
 	}
 
 	template<typename BlockType>
     bool Hierarchy<BlockType>::isLeaf(const BlockType& node) const
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return degree(node) == 0;
 	}
 
 	template<typename BlockType>
     bool Hierarchy<BlockType>::hasNthSon(const BlockType& node, size_t sonOrder) const
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return this->accessSon(node, sonOrder) != NULL;
 	}
 
 	template<typename BlockType>
     void Hierarchy<BlockType>::processPreOrder(const BlockType* node, std::function<void(const BlockType*)> operation) const
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		if (node != nullptr)
+		{
+			operation(node);
+			size_t nodeDegree = this->degree(*node);
+			size_t sonOrder = 0;
+			size_t sonsProcessed = 0;
+			while (sonsProcessed < nodeDegree)
+			{
+				BlockType* son = this->accessSon(*node, sonOrder);
+				if (son != nullptr)
+				{
+					processPreOrder(son, operation);
+					++sonsProcessed;
+				}
+				++sonOrder;
+			}
+		}
 	}
 
 	template<typename BlockType>
     void Hierarchy<BlockType>::processPostOrder(BlockType* node, std::function<void(BlockType*)> operation) const
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		if (node != nullptr)
+		{
+			size_t nodeDegree = this->degree(*node);
+			size_t sonOrder = 0;
+			size_t sonsProcessed = 0;
+			while (sonsProcessed < nodeDegree)
+			{
+				BlockType* son = this->accessSon(*node, sonOrder);
+				if (son != nullptr)
+				{
+					processPostOrder(son, operation);
+					++sonsProcessed;
+				}
+				++sonOrder;
+			}
+			operation(node);
+		}
 	}
 
 	template<typename BlockType>
@@ -446,9 +467,19 @@ namespace ds::amt {
 	template<typename BlockType>
     typename Hierarchy<BlockType>::PreOrderHierarchyIterator& Hierarchy<BlockType>::PreOrderHierarchyIterator::operator++()
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		if (tryFindNextSonInCurrentPosition())
+		{
+			savePosition(currentPosition_->currentSon_);
+		}
+		else
+		{
+			removePosition();
+			if (currentPosition_ != nullptr)
+			{
+				++(*this);
+			}
+		}
+		return *this;
 	}
 
 	template<typename BlockType>

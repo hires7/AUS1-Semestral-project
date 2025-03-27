@@ -11,19 +11,19 @@ public:
         std::copy_if(begin, end, out, pred);
     }
 
-    static auto byName(const std::string& searchStr) {
+    static auto containsStr(const std::string& searchStr) {
         return [searchStr](const Town& town) {
             return town.getName().find(searchStr) != std::string::npos;
             };
     }
 
-    static auto byMaxResidents(int year, size_t max) {
+    static auto hasMaxResidents(int year, size_t max) {
         return [year, max](const Town& town) {
             return town.getPopulation(year) <= max;
             };
     }
 
-    static auto byMinResidents(int year, size_t min) {
+    static auto hasMinResidents(int year, size_t min) {
         return [year, min](const Town& town) {
             return town.getPopulation(year) >= min;
             };
