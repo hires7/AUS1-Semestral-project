@@ -20,10 +20,8 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 	amt->add_test(std::make_unique<ds::tests::ImplicitSequenceTest>());
 	amt->add_test(std::make_unique<ds::tests::ExplicitSequenceTest>());
 	amt->add_test(std::make_unique<ds::tests::ImplicitHierarchyTest>());
-
-	// TODO 07
-	//amt->add_test(std::make_unique<ds::tests::ExplicitHierarchyTest>());
-	//amt->add_test(std::make_unique<ds::tests::HierarchyTest>());
+	amt->add_test(std::make_unique<ds::tests::ExplicitHierarchyTest>());
+	amt->add_test(std::make_unique<ds::tests::HierarchyTest>());
 
 	// TODO 08
 	//adt->add_test(std::make_unique<ds::tests::ListTest>());
@@ -55,7 +53,6 @@ std::vector<std::unique_ptr<ds::utils::Analyzer>> createAnalyzers()
 {
 	std::vector<std::unique_ptr<ds::utils::Analyzer>> analyzers;
 	
-	// TODO 01
 	analyzers.emplace_back(std::make_unique<ds::utils::ListsAnalyzer>());
 
 	return analyzers;

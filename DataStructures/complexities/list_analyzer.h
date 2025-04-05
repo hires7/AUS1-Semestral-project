@@ -128,9 +128,8 @@ namespace ds::utils
     template <class List>
     void ListRemoveAnalyzer<List>::executeOperation(List& structure)
     {
-        // TODO 01
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        auto data = this->getRandomData();
+        structure.insert(structure.begin(), data);
     }
 
     //----------

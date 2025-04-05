@@ -236,25 +236,20 @@ namespace ds::amt {
 	template<typename BlockType>
     void ExplicitHierarchy<BlockType>::clear()
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		processPostOrder(root_, [](BlockType*) {});
+		root_ = nullptr;
 	}
 
 	template<typename BlockType>
     size_t ExplicitHierarchy<BlockType>::size() const
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
-	}
+		return nodeCount();
+	}	
 
 	template<typename BlockType>
     bool ExplicitHierarchy<BlockType>::isEmpty() const
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return root_ == nullptr;
 	}
 
 	template<typename BlockType>
@@ -315,33 +310,30 @@ namespace ds::amt {
 	template<typename BlockType>
     BlockType* ExplicitHierarchy<BlockType>::accessRoot() const
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return root_;
 	}
 
 	template<typename BlockType>
     BlockType* ExplicitHierarchy<BlockType>::accessParent(const BlockType& node) const
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return static_cast<BlockType*>(node.parent_);
 	}
 
 	template<typename BlockType>
     BlockType& ExplicitHierarchy<BlockType>::emplaceRoot()
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		root_ = memoryManager_->allocateMemory();
+		return *root_;
 	}
 
 	template<typename BlockType>
     void ExplicitHierarchy<BlockType>::changeRoot(BlockType* newRoot)
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		if (newRoot != nullptr)
+		{
+			newRoot->parent_ = nullptr;
+		}
+		root_ = newRoot;
 	}
 
 	template<typename DataType>
@@ -366,41 +358,58 @@ namespace ds::amt {
     template<typename DataType>
     size_t MultiWayExplicitHierarchy<DataType>::degree(const BlockType& node) const
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		return node.sons_->size();
 	}
 
 	template<typename DataType>
     auto MultiWayExplicitHierarchy<DataType>::accessSon(const BlockType& node, size_t sonOrder) const -> BlockType*
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		MemoryBlock<BlockType*>* sonsBlock = node.sons_->access(sonOrder);
+		if (sonsBlock != nullptr)
+		{
+			return sonsBlock->data_;
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 
 	template<typename DataType>
     auto MultiWayExplicitHierarchy<DataType>::emplaceSon(BlockType& parent, size_t sonOrder) -> BlockType&
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		BlockType* newSon = memoryManager_->allocateMemory();
+		parent.sons_->insert(sonOrder).data_ = newSon;
+		newSon->parent_ = &parent;
+		return *newSon;
 	}
 
 	template<typename DataType>
     void MultiWayExplicitHierarchy<DataType>::changeSon(BlockType& parent, size_t sonOrder, BlockType* newSon)
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		MemoryBlock<BlockType*>* sonsBlock = parent.sons_->access(sonOrder);
+		BlockType* currentSon = sonsBlock->data_;
+		sonsBlock->data_ = newSon;
+		if (currentSon != nullptr)
+		{
+			currentSon->parent_ = nullptr;
+		}
+		if (newSon != nullptr)
+		{
+			newSon->parent_ = &parent;
+		}
 	}
 
 	template<typename DataType>
     void MultiWayExplicitHierarchy<DataType>::removeSon(BlockType& parent, size_t sonOrder)
 	{
-		// TODO 07
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		MemoryBlock<BlockType*>* sonsBlock = parent.sons_->access(sonOrder);
+		BlockType* removedSon = sonsBlock->data_;
+		processPostOrder(removedSon, [&](BlockType* b)
+			{
+				memoryManager_->releaseMemory(b);
+			});
+		parent.sons_->remove(sonOrder);
 	}
 
 	template<typename DataType, size_t K>
