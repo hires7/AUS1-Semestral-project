@@ -197,9 +197,12 @@ namespace ds::adt {
     template<typename T>
     T Array<T>::access(long long index) const
     {
-        // TODO 08
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->validateIndex(index))
+        {
+            throw structure_error("Index out of bounds!");
+        }
+        auto* block = this->getSequence()->access(index);
+        return block->data_;
     }
 
     template<typename T>
