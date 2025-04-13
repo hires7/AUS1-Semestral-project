@@ -113,4 +113,22 @@ ds::adt::MultiwayTree<TerritorialUnit>* Reader::buildHierarchy(const std::string
 }
 
 
+void Reader::printHierarchy(const ds::adt::MultiwayTree<TerritorialUnit>& tree,
+    const ds::adt::MultiwayTree<TerritorialUnit>::Node* node,
+    int indent)
+{
+    if (!node) return;
+
+    const TerritorialUnit& unit = node->data_;
+    std::string indentation(indent * 2, ' '); // 2 spaces per level
+
+    std::cout << indentation << "- " << unit.getType() << ": " << unit.getName()
+        << " (Pop 2024: " << unit.getPopulation(2024) << ")" << std::endl;
+
+    size_t childrenCount = tree.degree(*node);
+    for (size_t i = 0; i < childrenCount; ++i) {
+        const auto* child = tree.accessSon(*node, i);
+        printHierarchy(tree, child, indent + 1);
+    }
+}
 

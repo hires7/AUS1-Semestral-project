@@ -19,5 +19,10 @@ public:
        std::vector<Town>& towns
    );
 
+   static void printHierarchy(const ds::adt::MultiwayTree<TerritorialUnit>& tree,
+       const ds::adt::MultiwayTree<TerritorialUnit>::Node* node,
+       int indent = 0);
+
+
 };
 

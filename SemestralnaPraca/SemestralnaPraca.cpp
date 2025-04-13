@@ -15,8 +15,10 @@ int main() {
     std::vector<Town> towns = Reader::readData(filenames);
     std::vector<Town> filteredTowns;
 
-
-    int choice;
+    auto* tree = Reader::buildHierarchy("uzemie.csv", "obce.csv", towns);
+    Reader::printHierarchy(*tree, tree->accessRoot());
+    delete tree;
+    /*int choice;
     do {
         std::cout << "\n1. containsStr\n2. hasMaxResidents\n3. hasMinResidents\n4. Exit\nChoose: ";
         std::cin >> choice;
@@ -63,7 +65,7 @@ int main() {
             for (const auto& t : filteredTowns)
                 std::cout << " - " << t.toString() << "\n";
         }
-    } while (choice != 4);
+    } while (choice != 4);*/
 
     return 0;
 }
