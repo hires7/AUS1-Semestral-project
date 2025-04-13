@@ -33,29 +33,57 @@ Town::Town(std::string name, size_t code, size_t population2020, size_t populati
 	this->population2024_ = population2024;
 }
 
-void Town::setPopulation2020(size_t population)
-{
-	this->population2020_ = population;
+void Town::setMale(int year, size_t male) {
+	switch (year) {
+	case 2020: male2020_ = male; break;
+	case 2021: male2021_ = male; break;
+	case 2022: male2022_ = male; break;
+	case 2023: male2023_ = male; break;
+	case 2024: male2024_ = male; break;
+	}
 }
 
-void Town::setPopulation2021(size_t population)
-{
-	this->population2021_ = population;
+void Town::setFemale(int year, size_t female) {
+	switch (year) {
+	case 2020: female2020_ = female; break;
+	case 2021: female2021_ = female; break;
+	case 2022: female2022_ = female; break;
+	case 2023: female2023_ = female; break;
+	case 2024: female2024_ = female; break;
+	}
 }
 
-void Town::setPopulation2022(size_t population)
-{
-	this->population2022_ = population;
+void Town::setPopulation(int year, size_t population) {
+	switch (year) {
+	case 2020: population2020_ = population; break;
+	case 2021: population2021_ = population; break;
+	case 2022: population2022_ = population; break;
+	case 2023: population2023_ = population; break;
+	case 2024: population2024_ = population; break;
+	default: break;
+	}
 }
 
-void Town::setPopulation2023(size_t population)
-{
-	this->population2023_ = population;
+size_t Town::getMale(int year) const {
+	switch (year) {
+	case 2020: return male2020_;
+	case 2021: return male2021_;
+	case 2022: return male2022_;
+	case 2023: return male2023_;
+	case 2024: return male2024_;
+	default: return 0;
+	}
 }
 
-void Town::setPopulation2024(size_t population)
-{
-	this->population2024_ = population;
+size_t Town::getFemale(int year) const {
+	switch (year) {
+	case 2020: return female2020_;
+	case 2021: return female2021_;
+	case 2022: return female2022_;
+	case 2023: return female2023_;
+	case 2024: return female2024_;
+	default: return 0;
+	}
 }
 
 size_t Town::getPopulation(int year) const

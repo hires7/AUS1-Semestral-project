@@ -33,13 +33,9 @@ std::vector<Town> Reader::readData(const std::vector<std::string>& filenames) {
             bool found = false;
             for (auto& town : towns) {
                 if (town.getCode() == code) {
-                    switch (year) {
-                    case 2020: town.setPopulation2020(total); break;
-                    case 2021: town.setPopulation2021(total); break;
-                    case 2022: town.setPopulation2022(total); break;
-                    case 2023: town.setPopulation2023(total); break;
-                    case 2024: town.setPopulation2024(total); break;
-                    }
+                    town.setPopulation(year, total);
+                    town.setMale(year, male);
+                    town.setFemale(year, female);
                     found = true;
                     break;
                 }
@@ -47,13 +43,9 @@ std::vector<Town> Reader::readData(const std::vector<std::string>& filenames) {
 
             if (!found) {
                 Town newTown(name, code);
-                switch (year) {
-                case 2020: newTown.setPopulation2020(total); break;
-                case 2021: newTown.setPopulation2021(total); break;
-                case 2022: newTown.setPopulation2022(total); break;
-                case 2023: newTown.setPopulation2023(total); break;
-                case 2024: newTown.setPopulation2024(total); break;
-                }
+                newTown.setPopulation(year, total);
+                newTown.setMale(year, male);
+                newTown.setFemale(year, female);
                 towns.push_back(newTown);
             }
         }

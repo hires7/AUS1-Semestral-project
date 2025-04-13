@@ -7,21 +7,21 @@ class Town
 		std::string name_;
 		size_t code_;
 
-		size_t population2020_;
-		size_t population2021_;
-		size_t population2022_;
-		size_t population2023_;
-		size_t population2024_;
+		size_t population2020_, male2020_, female2020_;
+		size_t population2021_, male2021_, female2021_;
+		size_t population2022_, male2022_, female2022_;
+		size_t population2023_, male2023_, female2023_;
+		size_t population2024_, male2024_, female2024_;
 
 	public:
 		Town();
 		Town(std::string name, size_t code);
 		Town(std::string name, size_t code, size_t population2020, size_t population2021, size_t population2022, size_t population2023, size_t population2024);
-		void setPopulation2020(size_t population);
-		void setPopulation2021(size_t population);
-		void setPopulation2022(size_t population);
-		void setPopulation2023(size_t population);
-		void setPopulation2024(size_t population);
+		void setPopulation(int year, size_t population);
+		void setMale(int year, size_t male);
+		void setFemale(int year, size_t female);
+		size_t getMale(int year) const;
+		size_t getFemale(int year) const;
 		size_t getPopulation(int year) const;
 		std::string getName() const;
 		size_t getCode();
