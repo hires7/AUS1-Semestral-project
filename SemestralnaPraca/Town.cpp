@@ -9,6 +9,16 @@ Town::Town()
 	this->population2022_ = 0;
 	this->population2023_ = 0;
 	this->population2024_ = 0;
+	this->male2020_ = 0;
+	this->male2021_ = 0;
+	this->male2022_ = 0;
+	this->male2023_ = 0;
+	this->male2024_ = 0;
+	this->female2020_ = 0;
+	this->female2021_ = 0;
+	this->female2022_ = 0;
+	this->female2023_ = 0;
+	this->female2024_ = 0;
 }
 
 Town::Town(std::string name, size_t code)
@@ -20,18 +30,18 @@ Town::Town(std::string name, size_t code)
 	this->population2022_ = 0;
 	this->population2023_ = 0;
 	this->population2024_ = 0;
+	this->male2020_ = 0;
+	this->male2021_ = 0;
+	this->male2022_ = 0;
+	this->male2023_ = 0;
+	this->male2024_ = 0;
+	this->female2020_ = 0;
+	this->female2021_ = 0;
+	this->female2022_ = 0;
+	this->female2023_ = 0;
+	this->female2024_ = 0;
 }
 
-Town::Town(std::string name, size_t code, size_t population2020, size_t population2021, size_t population2022, size_t population2023, size_t population2024)
-{
-	this->name_ = name;
-	this->code_ = code;
-	this->population2020_ = population2020;
-	this->population2021_ = population2021;
-	this->population2022_ = population2022;
-	this->population2023_ = population2023;
-	this->population2024_ = population2024;
-}
 
 void Town::setMale(int year, size_t male) {
 	switch (year) {

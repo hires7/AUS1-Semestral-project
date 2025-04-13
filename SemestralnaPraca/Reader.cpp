@@ -50,7 +50,67 @@ std::vector<Town> Reader::readData(const std::vector<std::string>& filenames) {
             }
         }
     }
-
     return towns;
 }
+
+
+ds::adt::MultiwayTree<TerritorialUnit>* Reader::buildHierarchy(const std::string& uzemieFile, const std::string& obceFile, std::vector<Town>& towns)
+{
+    auto* tree = new ds::adt::MultiwayTree<TerritorialUnit>();
+
+    // 2. Mapovanie kodu alebo mena na node (aby sme vedeli pripojiù deti k rodiËovi)
+    std::unordered_map<std::string, ds::adt::MultiwayTree<TerritorialUnit>::Node*> jednotky;
+
+    // 3. NaËÌtaj uzemie.csv
+    std::ifstream file(uzemieFile);
+    if (!file.is_open()) {
+        std::cerr << "Nepodarilo sa otvorit subor: " << uzemieFile << "\n";
+        return tree;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string typ, nazov, kodStr, typRodica, nazovRodica, kodRodica;
+        std::getline(iss, typ, ';');
+        std::getline(iss, nazov, ';');
+        std::getline(iss, kodStr, ';');
+        std::getline(iss, typRodica, ';');
+        std::getline(iss, nazovRodica, ';');
+        std::getline(iss, kodRodica, ';');
+
+        size_t kod = kodStr.empty() ? 0 : std::stoul(kodStr);
+        TerritorialUnit jednotka(nazov, typ, kod);
+
+        // 4. Vytvor uzol
+        ds::adt::MultiwayTree<TerritorialUnit>::Node* node = nullptr;
+
+        if (typRodica.empty()) {
+            // Root uzol
+            node = &tree->insertRoot();
+        }
+        else {
+            // N·jdeme rodiËa podæa mena + typu
+            std::string klucRodic = typRodica + ":" + nazovRodica;
+            auto it = jednotky.find(klucRodic);
+            if (it != jednotky.end()) {
+                node = &tree->emplaceSon(*it->second, 0);
+            }
+            else {
+                std::cerr << "RodiË nenajdeny: " << klucRodic << "\n";
+                continue;
+            }
+        }
+
+        node->data_ = jednotka;
+
+        // 5. UloûÌme do mapy, aby sme mohli neskÙr pripojiù deti
+        std::string kluc = typ + ":" + nazov;
+        jednotky[kluc] = node;
+    }
+
+    return tree;
+}
+
+
 

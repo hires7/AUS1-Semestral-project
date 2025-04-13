@@ -93,7 +93,7 @@ namespace ds::amt {
     size_t ImplicitHierarchy<DataType, K>::degree(size_t index) const
 	{
 		size_t currentLevel = this->level(index);
-		size_t indexOfLast = size() - 1;
+		size_t indexOfLast = this->size() - 1;
 		size_t depth = level(indexOfLast);
 
 		if (currentLevel == depth)
@@ -117,7 +117,7 @@ namespace ds::amt {
 					}
 					else
 					{
-						size_t mod = (size() - 1) % K;
+						size_t mod = (this->size() - 1) % K;
 						if (mod == 0)
 						{
 							return K;

@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\DataStructures\</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,11 +132,13 @@
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="SemestralnaPraca.cpp" />
+    <ClCompile Include="TerritorialUnit.cpp" />
     <ClCompile Include="Town.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Filter.h" />
     <ClInclude Include="Reader.h" />
+    <ClInclude Include="TerritorialUnit.h" />
     <ClInclude Include="Town.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

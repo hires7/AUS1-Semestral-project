@@ -16,7 +16,6 @@ class Town
 	public:
 		Town();
 		Town(std::string name, size_t code);
-		Town(std::string name, size_t code, size_t population2020, size_t population2021, size_t population2022, size_t population2023, size_t population2024);
 		void setPopulation(int year, size_t population);
 		void setMale(int year, size_t male);
 		void setFemale(int year, size_t female);

@@ -6,6 +6,7 @@
 #include "Reader.h"
 #include "Filter.h"
 
+
 int main() {
     SetConsoleOutputCP(1250);
     SetConsoleCP(1250);
@@ -14,7 +15,11 @@ int main() {
     std::vector<Town> towns = Reader::readData(filenames);
     std::vector<Town> filteredTowns;
 
-    int choice;
+    auto* tree = Reader::buildHierarchy("uzemie.csv", "obce.csv", towns);
+    Reader::printHierarchy(*tree, tree->accessRoot());
+
+
+    /*int choice;
     do {
         std::cout << "\n1. containsStr\n2. hasMaxResidents\n3. hasMinResidents\n4. Exit\nChoose: ";
         std::cin >> choice;
@@ -32,8 +37,10 @@ int main() {
         }
         case 2: {
             int year; size_t max;
-            std::cout << "Year (2020-2024): "; std::cin >> year;
-            std::cout << "Max population: "; std::cin >> max;
+            std::cout << "Year (2020-2024): "; 
+            std::cin >> year;
+            std::cout << "Max population: "; 
+            std::cin >> max;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
             filteredTowns.clear();
             Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
@@ -42,8 +49,10 @@ int main() {
         }
         case 3: {
             int year; size_t min;
-            std::cout << "Year (2020-2024): "; std::cin >> year;
-            std::cout << "Min population: "; std::cin >> min;
+            std::cout << "Year (2020-2024): "; 
+            std::cin >> year;
+            std::cout << "Min population: "; 
+            std::cin >> min;
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             filteredTowns.clear();
             Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
@@ -57,7 +66,7 @@ int main() {
             for (const auto& t : filteredTowns)
                 std::cout << " - " << t.toString() << "\n";
         }
-    } while (choice != 4);
+    } while (choice != 4);*/
 
     return 0;
 }
