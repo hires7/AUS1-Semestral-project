@@ -40,4 +40,7 @@ public:
     void aggregateFromChildren(const std::vector<TerritorialUnit*>& children);
 
     std::string toString() const;
+    bool operator==(const TerritorialUnit& other) const;
+
+
 };

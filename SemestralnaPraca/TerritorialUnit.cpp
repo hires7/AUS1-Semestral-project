@@ -122,3 +122,11 @@ std::string TerritorialUnit::toString() const
     return name_ + ", Kod: " + std::to_string(code_) + ", Populacia: " + std::to_string(population2020_) + ", " + std::to_string(population2021_) + ", " + std::to_string(population2022_) + ", " + std::to_string(population2023_) + ", " + std::to_string(population2024_);
 
 }
+
+bool TerritorialUnit::operator==(const TerritorialUnit& other) const {
+    return this->code_ == other.code_
+        && this->name_ == other.name_
+        && this->type_ == other.type_;
+}
+
+
