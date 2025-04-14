@@ -29,4 +29,11 @@ public:
             return unit.getType() == "town" || unit.getType() == "obec";
             };
     }
+
+    static std::function<bool(const TerritorialUnit&)> hasType(const std::string& type) {
+        return [type](const TerritorialUnit& unit) {
+            return unit.getType() == type;
+            };
+    }
+
 };

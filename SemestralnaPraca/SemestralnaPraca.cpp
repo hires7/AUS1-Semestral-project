@@ -88,13 +88,13 @@ int main() {
             auto* tree = TreeBuilder::buildTree(units);
             TreeBuilder::assignTowns(*tree, towns, "obce.csv");
             Reader::aggregateTree(*tree, tree->accessRoot());
-
+            size_t totalNodes = tree->nodeCount();
+            std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";
             HierarchyIterator iterator(tree);
             bool iterating = true;
 
             while (iterating) {
-                size_t totalNodes = tree->nodeCount();
-                std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";
+                
 
                 std::cout << "\nAktuálny vrchol:\n";
                 iterator.printCurrent();
@@ -112,7 +112,7 @@ int main() {
 
                 switch (iterChoice) {
                 case 1: {
-                    std::cout << "\n1. Názov obsahuje\n2. Minimálna populácia\n3. Maximálna populácia\nVyber filter: ";
+                    std::cout << "\n1. Názov obsahuje\n2. Minimálna populácia\n3. Maximálna populácia\n4. Typ jednotky\nVyber filter: ";
                     int f;
                     std::cin >> f;
 
@@ -143,8 +143,15 @@ int main() {
                                 return UnitFilter::isTownOnly()(unit) && UnitFilter::hasMaxPopulation(year, max)(unit);
                             });
                     }
+                    else if (f == 4) {
+                        std::string typ;
+                        std::cout << "Zadaj typ jednotky (geo / rep / reg / town): ";
+                        std::cin >> typ;
+                        iterator.applyPredicateToDescendants(UnitFilter::hasType(typ));
+                    }
                     break;
                 }
+
                 case 2: {
                     iterator.printChildren();
                     std::cout << "Zadaj index syna, na ktorého sa chceš presunúť: ";
