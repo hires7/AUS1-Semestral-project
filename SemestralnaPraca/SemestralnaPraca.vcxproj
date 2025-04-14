@@ -134,12 +134,16 @@
     <ClCompile Include="SemestralnaPraca.cpp" />
     <ClCompile Include="TerritorialUnit.cpp" />
     <ClCompile Include="Town.cpp" />
+    <ClCompile Include="TreeBuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Filter.h" />
+    <ClInclude Include="HierarchyIterator.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="TerritorialUnit.h" />
     <ClInclude Include="Town.h" />
+    <ClInclude Include="TreeBuilder.h" />
+    <ClInclude Include="UnitFilter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

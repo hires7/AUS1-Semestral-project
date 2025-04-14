@@ -127,7 +127,7 @@ std::string Town::getName() const
 	return this->name_;
 }
 
-size_t Town::getCode()
+size_t Town::getCode() const
 {
 	return this->code_;
 }

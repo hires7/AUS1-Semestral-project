@@ -30,6 +30,11 @@ size_t TerritorialUnit::getCode() const {
 	return code_;
 }
 
+bool TerritorialUnit::operator==(const TerritorialUnit& other) const
+{
+    return this->code_ == other.code_;
+}
+
 void TerritorialUnit::setPopulation(int year, size_t population) {
     switch (year) {
     case 2020: population2020_ = population; break;
@@ -123,10 +128,5 @@ std::string TerritorialUnit::toString() const
 
 }
 
-bool TerritorialUnit::operator==(const TerritorialUnit& other) const {
-    return this->code_ == other.code_
-        && this->name_ == other.name_
-        && this->type_ == other.type_;
-}
 
 

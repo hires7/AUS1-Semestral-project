@@ -23,7 +23,7 @@ class Town
 		size_t getFemale(int year) const;
 		size_t getPopulation(int year) const;
 		std::string getName() const;
-		size_t getCode();
+		size_t getCode() const;
 		~Town();
 		std::string toString() const;
 };

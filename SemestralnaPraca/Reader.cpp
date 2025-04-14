@@ -1,4 +1,4 @@
-#include "Reader.h"
+Ôªø#include "Reader.h"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -53,63 +53,55 @@ std::vector<Town> Reader::readData(const std::vector<std::string>& filenames) {
     return towns;
 }
 
-
-ds::adt::MultiwayTree<TerritorialUnit>* Reader::buildHierarchy(const std::string& uzemieFile, const std::string& obceFile, std::vector<Town>& towns)
+std::vector<TerritorialUnit> Reader::parseHierarchy(const std::string& filename)
 {
-    auto* tree = new ds::adt::MultiwayTree<TerritorialUnit>();
-
-    // 2. Mapovanie kodu alebo mena na node (aby sme vedeli pripojiù deti k rodiËovi)
-    std::unordered_map<std::string, ds::adt::MultiwayTree<TerritorialUnit>::Node*> jednotky;
-
-    // 3. NaËÌtaj uzemie.csv
-    std::ifstream file(uzemieFile);
-    if (!file.is_open()) {
-        std::cerr << "Nepodarilo sa otvorit subor: " << uzemieFile << "\n";
-        return tree;
-    }
-
+    std::vector<TerritorialUnit> units;
+    std::ifstream file(filename);
     std::string line;
+
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string typ, nazov, kodStr, typRodica, nazovRodica, kodRodica;
-        std::getline(iss, typ, ';');
-        std::getline(iss, nazov, ';');
-        std::getline(iss, kodStr, ';');
-        std::getline(iss, typRodica, ';');
-        std::getline(iss, nazovRodica, ';');
-        std::getline(iss, kodRodica, ';');
+        std::string name, codeStr;
+        std::getline(iss, name, ';');
+        std::getline(iss, codeStr, ';');
 
-        size_t kod = kodStr.empty() ? 0 : std::stoul(kodStr);
-        TerritorialUnit jednotka(nazov, typ, kod);
+        // 1. Extract only digits from "ATxxx"
+        std::string digits;
+        for (char c : codeStr) {
+            if (std::isdigit(c)) {
+                digits += c;
+            }
+        }
 
-        // 4. Vytvor uzol
-        ds::adt::MultiwayTree<TerritorialUnit>::Node* node = nullptr;
+        // 2. Convert to number
+        size_t code = safeStoul(digits);
 
-        if (typRodica.empty()) {
-            // Root uzol
-            node = &tree->insertRoot();
+        // 3. Determine parent code
+        size_t parentCode = 0;
+        if (code >= 100) {
+            parentCode = code / 10;   // e.g., 121 ‚Üí 12
+        }
+        else if (code >= 10) {
+            parentCode = code / 10;   // e.g., 12 ‚Üí 1
         }
         else {
-            // N·jdeme rodiËa podæa mena + typu
-            std::string klucRodic = typRodica + ":" + nazovRodica;
-            auto it = jednotky.find(klucRodic);
-            if (it != jednotky.end()) {
-                node = &tree->emplaceSon(*it->second, 0);
-            }
-            else {
-                std::cerr << "RodiË nenajdeny: " << klucRodic << "\n";
-                continue;
-            }
+            parentCode = 0;           // e.g., 1 ‚Üí root Austria
         }
 
-        node->data_ = jednotka;
+        // 4. Determine type
+        std::string type;
+        if (code < 10) type = "geo";
+        else if (code < 100) type = "rep";
+        else type = "reg";
 
-        // 5. UloûÌme do mapy, aby sme mohli neskÙr pripojiù deti
-        std::string kluc = typ + ":" + nazov;
-        jednotky[kluc] = node;
+        // 5. Add unit
+        units.emplace_back(name, type, code, parentCode);
+
+        // Debug (optional)
+        std::cout << "[DEBUG] " << name << " (code: " << code << ", parent: " << parentCode << ")\n";
     }
 
-    return tree;
+    return units;
 }
 
 
@@ -120,15 +112,54 @@ void Reader::printHierarchy(const ds::adt::MultiwayTree<TerritorialUnit>& tree,
     if (!node) return;
 
     const TerritorialUnit& unit = node->data_;
-    std::string indentation(indent * 2, ' '); // 2 spaces per level
+    std::string indentation(indent * 2, ' ');
 
-    std::cout << indentation << "- " << unit.getType() << ": " << unit.getName()
-        << " (Pop 2024: " << unit.getPopulation(2024) << ")" << std::endl;
+    // Format code with AT
+    std::string codeStr = "AT" + std::to_string(unit.getCode());
+    std::string parentCodeStr = (unit.getCode() == 0) ? "-" : "AT" + std::to_string(unit.getParentCode());
 
-    size_t childrenCount = tree.degree(*node);
-    for (size_t i = 0; i < childrenCount; ++i) {
+    std::cout << indentation
+        << "- " << unit.getType() << ": " << unit.getName()
+        << " (code: " << codeStr
+        << ", parent: " << parentCodeStr
+        << ", Pop 2024: " << unit.getPopulation(2024)
+        << ")\n";
+
+    size_t children = tree.degree(*node);
+    for (size_t i = 0; i < children; ++i) {
         const auto* child = tree.accessSon(*node, i);
         printHierarchy(tree, child, indent + 1);
+    }
+}
+
+
+void Reader::aggregateTree(ds::adt::MultiwayTree<TerritorialUnit>& tree,
+    ds::adt::MultiwayTree<TerritorialUnit>::Node* node)
+{
+    if (!node) return;
+
+    std::vector<TerritorialUnit*> children;
+
+    size_t count = tree.degree(*node);
+    for (size_t i = 0; i < count; ++i) {
+        auto* child = tree.accessSon(*node, i);
+        aggregateTree(tree, child);
+        children.push_back(&child->data_);
+    }
+
+    node->data_.aggregateFromChildren(children);
+}
+
+size_t Reader::safeStoul(const std::string& str)
+{
+    try {
+        return std::stoul(str);
+    }
+    catch (const std::invalid_argument&) {
+        return 0;
+    }
+    catch (const std::out_of_range&) {
+        return 0;
     }
 }
 
