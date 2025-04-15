@@ -127,8 +127,10 @@ int main() {
                     }
                     else if (f == 2) {
                         int year; size_t min;
-                        std::cout << "Rok: "; std::cin >> year;
-                        std::cout << "Min: "; std::cin >> min;
+                        std::cout << "Rok: "; 
+                        std::cin >> year;
+                        std::cout << "Min: "; 
+                        std::cin >> min;
                         iterator.applyPredicateToDescendants(
                             [=](const TerritorialUnit& unit) {
                                 return UnitFilter::isTownOnly()(unit) && UnitFilter::hasMinPopulation(year, min)(unit);
@@ -136,8 +138,10 @@ int main() {
                     }
                     else if (f == 3) {
                         int year; size_t max;
-                        std::cout << "Rok: "; std::cin >> year;
-                        std::cout << "Max: "; std::cin >> max;
+                        std::cout << "Rok: "; 
+                        std::cin >> year;
+                        std::cout << "Max: "; 
+                        std::cin >> max;
                         iterator.applyPredicateToDescendants(
                             [=](const TerritorialUnit& unit) {
                                 return UnitFilter::isTownOnly()(unit) && UnitFilter::hasMaxPopulation(year, max)(unit);
