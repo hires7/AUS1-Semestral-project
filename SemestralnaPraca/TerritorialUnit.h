@@ -44,8 +44,16 @@ public:
     }
 
     TerritorialUnit(const std::string& name, const std::string& type, size_t code, size_t parentCode)
-        : name_(name), type_(type), code_(code), parentCode_(parentCode) {
+        : name_(name), type_(type), code_(code), parentCode_(parentCode),
+        population2020_(0), male2020_(0), female2020_(0),
+        population2021_(0), male2021_(0), female2021_(0),
+        population2022_(0), male2022_(0), female2022_(0),
+        population2023_(0), male2023_(0), female2023_(0),
+        population2024_(0), male2024_(0), female2024_(0),
+        townData_(nullptr)
+    {
     }
+
 
     TerritorialUnit(const std::string& name, const std::string& type, size_t code,
         const std::string& parentName, const std::string& parentType)
@@ -137,17 +145,11 @@ public:
     Town* getTownData() const { return townData_; }
 
     void aggregateFromChildren(const std::vector<TerritorialUnit*>& children) {
-        for (int year = 2020; year <= 2024; ++year) {
-            size_t totalM = 0, totalF = 0;
-            for (const auto* child : children) {
-                totalM += child->getMalePopulation(year);
-                totalF += child->getFemalePopulation(year);
-            }
-            setMalePopulation(year, totalM);
-            setFemalePopulation(year, totalF);
-            setPopulation(year, totalM + totalF);
+        for (const auto* child : children) {
+            this->aggregateChild(*child);  // sem daj všetko
         }
     }
+
 
     std::string toString() const {
         return name_ + ", Kod: " + std::to_string(code_) + ", Populacia: " +
@@ -168,26 +170,18 @@ public:
     bool isCommune() const { return type_ == "commune"; }
 
     void aggregateChild(const TerritorialUnit& child) {
-        population2020_ += child.population2020_;
-        male2020_ += child.male2020_;
-        female2020_ += child.female2020_;
+        for (int year = 2020; year <= 2024; ++year) {
+            setPopulation(year, getPopulation(year) + child.getPopulation(year));
+            setMalePopulation(year, getMalePopulation(year) + child.getMalePopulation(year));
+            setFemalePopulation(year, getFemalePopulation(year) + child.getFemalePopulation(year));
+        }
 
-        population2021_ += child.population2021_;
-        male2021_ += child.male2021_;
-        female2021_ += child.female2021_;
-
-        population2022_ += child.population2022_;
-        male2022_ += child.male2022_;
-        female2022_ += child.female2022_;
-
-        population2023_ += child.population2023_;
-        male2023_ += child.male2023_;
-        female2023_ += child.female2023_;
-
-        population2024_ += child.population2024_;
-        male2024_ += child.male2024_;
-        female2024_ += child.female2024_;
+        std::cout << "[AGGREGATE_CHILD] " << child.getName()
+            << " -> Pop 2020: " << child.getPopulation(2020) << "\n";
     }
 
-    void setParentCode(size_t parent) { communeParentCode_ = parent; }
+    void setParentCode(size_t parent)
+    {
+	    communeParentCode_ = parent;
+    }
 };

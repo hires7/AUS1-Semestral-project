@@ -45,13 +45,12 @@ public:
         return tree;
     }
 
-    static void assignTowns(ds::adt::MultiwayTree<TerritorialUnit>& tree,
-        const std::vector<Town>& towns,
-        const std::string& obceFile) {
+    static void assignTowns(ds::adt::MultiwayTree<TerritorialUnit>& tree, const std::vector<Town>& towns, const std::string& obceFile) {
         using Node = ds::adt::MultiwayTree<TerritorialUnit>::Node;
 
         std::unordered_map<size_t, Node*> regionNodes;
 
+        // Rekurzívne prejde celý strom a mapuje kódy jednotiek na ich uzly
         std::function<void(Node*)> collectNodes;
         collectNodes = [&](Node* node) {
             const TerritorialUnit& unit = node->data_;
@@ -77,13 +76,15 @@ public:
             std::getline(iss, codeStr, ';');
             std::getline(iss, regionStr, ';');
 
+            // Správne spracovanie kódov
             size_t code = std::stoul(codeStr.substr(1, codeStr.size() - 2));
             size_t regionCode = std::stoul(regionStr.substr(2));
 
+            // Nájde obec pod¾a kódu
             Town* townPtr = nullptr;
             for (const auto& t : towns) {
                 if (t.getCode() == code) {
-                    townPtr = const_cast<Town*>(&t);
+                    townPtr = const_cast<Town*>(&t);  // Áno, vieme, hack. Ale máme dôvod.
                     break;
                 }
             }
@@ -99,16 +100,47 @@ public:
                 continue;
             }
 
-            TerritorialUnit unit(name, "town", code);
-            unit.attachTown(townPtr);
+            Node& newNode = tree.emplaceSon(*regionIt->second, tree.degree(*regionIt->second));
+            newNode.data_ = TerritorialUnit(name, "town", code); // prvé naplnenie
+
+            TerritorialUnit& tu = newNode.data_;  // referencia na stromový objekt
+
+            tu.attachTown(townPtr);
+
             for (int year = 2020; year <= 2024; ++year) {
-                unit.setMalePopulation(year, townPtr->getMale(year));
-                unit.setFemalePopulation(year, townPtr->getFemale(year));
-                unit.setPopulation(year, townPtr->getPopulation(year));
+                size_t pop = townPtr->getPopulation(year);
+                size_t male = townPtr->getMale(year);
+                size_t female = townPtr->getFemale(year);
+
+                tu.setMalePopulation(year, male);
+                tu.setFemalePopulation(year, female);
+                tu.setPopulation(year, pop);
+
+                std::cout << "[DATA] " << name << " | year " << year
+                    << " => pop: " << pop << ", male: " << male << ", female: " << female << "\n";
             }
 
-            Node& newNode = tree.emplaceSon(*regionIt->second, tree.degree(*regionIt->second));
-            newNode.data_ = unit;
+
+            newNode.data_ = tu;  // až teraz priradíš naplnený objekt
+
+
+            for (int year = 2020; year <= 2024; ++year) {
+                size_t pop = townPtr->getPopulation(year);
+                size_t male = townPtr->getMale(year);
+                size_t female = townPtr->getFemale(year);
+
+                std::cout << "[DATA] " << name << " | year " << year
+                    << " => pop: " << pop
+                    << ", male: " << male
+                    << ", female: " << female << "\n";
+
+                tu.setMalePopulation(year, male);
+                tu.setFemalePopulation(year, female);
+                tu.setPopulation(year, pop);
+            }
+
+
         }
     }
+
 };

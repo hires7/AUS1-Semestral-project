@@ -107,8 +107,9 @@ int main() {
                 std::cout << "2. Posun na syna\n";
                 std::cout << "3. Posun k rodičovi\n";
                 std::cout << "4. Vypíš všetkých synov\n";
-                std::cout << "5. Koniec\n";
-                std::cout << "Tvoja voľba: ";
+                std::cout << "5. Zobraziť populáciu pre rok\n";
+                std::cout << "6. Koniec\n";
+
 
                 int iterChoice;
                 std::cin >> iterChoice;
@@ -192,10 +193,12 @@ int main() {
                     iterator.printChildren();
                     break;
                 case 5:
+                    iterator.printPopulationByYear();
+                    break;
+                case 6:
                     iterating = false;
                     break;
-                default:
-                    std::cout << "Neplatná voľba.\n";
+
                 }
             }
 

@@ -136,8 +136,17 @@ public:
             children.push_back(&child->data_);
         }
 
+        // DEBUG: Vypíš populáciu všetkých detí pred agregáciou
+        for (const auto& ch : children) {
+            std::cout << "[CHILD] " << ch->getName() << " | Pop 2020: " << ch->getPopulation(2020) << "\n";
+        }
+
+        std::cout << "[AGGREGATE] Vrchol '" << node->data_.getName()
+            << "' bude agregova " << children.size() << " detí\n";
         node->data_.aggregateFromChildren(children);
     }
+
+
 
     static size_t safeStoul(const std::string& str) {
         try {

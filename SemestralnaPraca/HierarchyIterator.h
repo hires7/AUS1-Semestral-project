@@ -3,7 +3,6 @@
 #include "TerritorialUnit.h"
 #include <libds/adt/tree.h>
 #include <iostream>
-#include <string>
 
 class HierarchyIterator {
 public:
@@ -37,7 +36,7 @@ public:
         if (current_) {
             const auto& unit = current_->data_;
             std::cout << "Aktuálny vrchol: " << unit.getName()
-                << " (" << unit.getType();
+                << " (" << unit.getType() << " )";
         }
     }
 
@@ -71,6 +70,24 @@ public:
     Node* getCurrent() const {
         return current_;
     }
+
+    void printPopulationByYear() const {
+        if (current_) {
+            int year;
+            std::cout << "Zadaj rok (2020-2024): ";
+            std::cin >> year;
+
+            if (year < 2020 || year > 2024) {
+                std::cout << "Neplatný rok.\n";
+                return;
+            }
+
+            const TerritorialUnit& unit = current_->data_;
+            std::cout << "Populácia pre '" << unit.getName() << "' v roku " << year
+                << ": " << unit.getPopulation(year) << "\n";
+        }
+    }
+
 
 private:
     Tree* tree_;
