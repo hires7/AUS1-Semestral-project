@@ -1,4 +1,7 @@
 ﻿#define NOMINMAX
+#define _CRTDBG_MAP_ALLOC
+#include <cstdlib>
+#include <crtdbg.h>
 #include <iostream>
 #include <windows.h>
 #include <limits>
@@ -112,7 +115,12 @@ int main() {
 
                 switch (iterChoice) {
                 case 1: {
-                    std::cout << "\n1. Názov obsahuje\n2. Minimálna populácia\n3. Maximálna populácia\n4. Typ jednotky\nVyber filter: ";
+                    std::cout << "\n1. Názov obsahuje\n"
+                        << "2. Minimálna populácia\n"
+                        << "3. Maximálna populácia\n"
+                        << "4. Typ jednotky (geo, rep, reg, town)\n"
+                        << "Vyber filter: ";
+
                     int f;
                     std::cin >> f;
 
@@ -120,41 +128,54 @@ int main() {
                         std::string s;
                         std::cout << "Zadaj reťazec: ";
                         std::cin >> s;
+
                         iterator.applyPredicateToDescendants(
                             [=](const TerritorialUnit& unit) {
-                                return UnitFilter::isTownOnly()(unit) && UnitFilter::nameContains(s)(unit);
+                                return UnitFilter::nameContains(s)(unit);
                             });
+
                     }
                     else if (f == 2) {
-                        int year; size_t min;
-                        std::cout << "Rok: "; 
+                        int year;
+                        size_t min;
+                        std::cout << "Rok: ";
                         std::cin >> year;
-                        std::cout << "Min: "; 
+                        std::cout << "Min: ";
                         std::cin >> min;
+
                         iterator.applyPredicateToDescendants(
                             [=](const TerritorialUnit& unit) {
-                                return UnitFilter::isTownOnly()(unit) && UnitFilter::hasMinPopulation(year, min)(unit);
+                                return UnitFilter::hasMinPopulation(year, min)(unit);
                             });
+
                     }
                     else if (f == 3) {
-                        int year; size_t max;
-                        std::cout << "Rok: "; 
+                        int year;
+                        size_t max;
+                        std::cout << "Rok: ";
                         std::cin >> year;
-                        std::cout << "Max: "; 
+                        std::cout << "Max: ";
                         std::cin >> max;
+
                         iterator.applyPredicateToDescendants(
                             [=](const TerritorialUnit& unit) {
-                                return UnitFilter::isTownOnly()(unit) && UnitFilter::hasMaxPopulation(year, max)(unit);
+                                return UnitFilter::hasMaxPopulation(year, max)(unit);
                             });
+
                     }
                     else if (f == 4) {
-                        std::string typ;
-                        std::cout << "Zadaj typ jednotky (geo / rep / reg / town): ";
-                        std::cin >> typ;
-                        iterator.applyPredicateToDescendants(UnitFilter::hasType(typ));
+                        std::string type;
+                        std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
+                        std::cin >> type;
+
+                        iterator.applyPredicateToDescendants(
+                            [=](const TerritorialUnit& unit) {
+                                return UnitFilter::hasType(type)(unit);
+                            });
                     }
                     break;
                 }
+
 
                 case 2: {
                     iterator.printChildren();
@@ -190,6 +211,7 @@ int main() {
             std::cout << "Invalid option.\n";
         }
     }
+    _CrtDumpMemoryLeaks();
 
     return 0;
 }

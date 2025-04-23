@@ -37,8 +37,7 @@ public:
         if (current_) {
             const auto& unit = current_->data_;
             std::cout << "Aktuálny vrchol: " << unit.getName()
-                << " (" << unit.getType() << ", Pop 2024: "
-                << unit.getPopulation(2024) << ")\n";
+                << " (" << unit.getType();
         }
     }
 
@@ -56,8 +55,7 @@ public:
         std::function<void(Node*)> recurse;
         recurse = [&](Node* node) {
             if (pred(node->data_)) {
-                std::cout << "- " << node->data_.getName()
-                    << " (Pop 2024: " << node->data_.getPopulation(2024) << ")\n";
+                std::cout << "- " << node->data_.getName() << "\n";
             }
 
             size_t children = tree_->degree(*node);
