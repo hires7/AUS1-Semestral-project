@@ -101,7 +101,7 @@ namespace ds::adt {
 
     template <typename P, typename T>
     class UnsortedImplicitSequencePriorityQueue :
-        public UnsortedSequencePriorityQueue<P, T, amt::IS<PQItem<P,T>>>
+        public UnsortedSequencePriorityQueue<P, T, amt::IS<PQItem<P, T>>>
     {
     public:
         void push(P priority, T data) override;
@@ -264,20 +264,17 @@ namespace ds::adt {
     template<typename P, typename T, typename SequenceType>
     typename SequenceType::BlockType* UnsortedSequencePriorityQueue<P, T, SequenceType>::findHighestPriorityBlock()
     {
-		auto* result = this->getSequence()->accessFirst();
-        if (result != nullptr)
-        {
-            this->getSequence()->processBlocksForward(
-				this->getSequence()->accessFirst(),
-				[&result](typename SequenceType::BlockType* block)
-				{
-					if (block->data_.priority_ > result->data_.priority_)
-					{
-						result = block;
-					}
-				});
-            return result;
-        }
+        typename SequenceType::BlockType* bestBlock = this->getSequence()->accessFirst();
+
+        this->getSequence()->processBlocksForward(this->getSequence()->accessNext(*bestBlock), [&](typename SequenceType::BlockType* b)
+            {
+                if (bestBlock->data_.priority_ > b->data_.priority_)
+                {
+                    bestBlock = b;
+                }
+            });
+
+        return bestBlock;
     }
 
     template<typename P, typename T, typename SequenceType>
@@ -294,75 +291,96 @@ namespace ds::adt {
     template<typename P, typename T, typename SequenceType>
     T SortedSequencePriorityQueue<P, T, SequenceType>::pop()
     {
-		T result = peek();
-		this->getSequence()->remove(this->indexOfHighestPriorityBlock());
-		return result;
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
+        }
+
+        size_t index = this->indexOfHighestPriorityBlock();
+        T result = this->getSequence()->access(index)->data_.data_;
+        this->getSequence()->remove(index);
+        return result;
     }
 
     template<typename P, typename T>
     void UnsortedImplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
-		PQItem<P, T>& pqi = this->getSequence()->insertLast().data_;
-        pqi.data_ = data;
-		pqi.priority_ = priority;
+        PQItem<P, T>& queueData = this->getSequence()->insertLast().data_;
+        queueData.priority_ = priority;
+        queueData.data_ = data;
     }
 
     template<typename P, typename T>
     T UnsortedImplicitSequencePriorityQueue<P, T>::pop()
     {
-        if (isEmpty())
+        if (this->isEmpty())
         {
-            throw std::out_of_range("Stack is empty!");
+            throw std::out_of_range("Queue is empty!");
         }
-		auto* blockBest = this->findHighestPriorityBlock();
-		auto* blockLast = this->getSequence()->accessLast();
 
-		if (blockBest != blockLast)
-		{
-		    std::swap(blockBest->data_, blockLast->data_);
-		}
-
-		T result = blockLast->data_.data_;
-		this->getSequence()->removeLast();
-		return result;
-
+        SequenceBlockType* bestBlock = this->findHighestPriorityBlock();
+        T result = bestBlock->data_.data_;
+        SequenceBlockType* lastBlock = this->getSequence()->accessLast();
+        if (bestBlock != lastBlock)
+        {
+            using std::swap;
+            swap(bestBlock->data_, lastBlock->data_);
+        }
+        this->getSequence()->removeLast();
+        return result;
     }
 
     template<typename P, typename T>
     void UnsortedExplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
-        PQItem<P, T>& pqi = this->getSequence()->insertFirst().data_;
-        pqi.data_ = data;
-        pqi.priority_ = priority;
+        PQItem<P, T>& queueData = this->getSequence()->insertFirst().data_;
+        queueData.priority_ = priority;
+        queueData.data_ = data;
     }
 
     template<typename P, typename T>
     T UnsortedExplicitSequencePriorityQueue<P, T>::pop()
     {
-        if (isEmpty())
+        if (this->isEmpty())
         {
-            throw std::out_of_range("Stack is empty!");
-        }
-        auto* blockBest = this->findHighestPriorityBlock();
-        auto* blockFirst = this->getSequence()->accessFirst();
-
-        if (blockBest != blockFirst)
-        {
-            std::swap(blockBest->data_, blockFirst->data_);
+            throw std::out_of_range("Queue is empty!");
         }
 
-        T result = blockFirst->data_.data_;
-        this->getSequence()->removeLast();
+        SequenceBlockType* bestBlock = this->findHighestPriorityBlock();
+        T result = bestBlock->data_.data_;
+        SequenceBlockType* firstBlock = this->getSequence()->accessFirst();
+        if (bestBlock != firstBlock)
+        {
+            using std::swap;
+            swap(bestBlock->data_, firstBlock->data_);
+        }
+        this->getSequence()->removeFirst();
         return result;
-
     }
 
     template<typename P, typename T>
     void SortedImplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");  
+        PQItem<P, T>* queueData = nullptr;
+
+        if (this->isEmpty() || priority <= this->getSequence()->accessLast()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertLast().data_;
+        }
+        else if (priority >= this->getSequence()->accessFirst()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertFirst().data_;
+        }
+        else
+        {
+            queueData = &this->getSequence()->insertBefore(*this->getSequence()->findBlockWithProperty(
+                [&priority](SequenceBlockType* block)->bool {
+                    return block->data_.priority_ <= priority;
+                })).data_;
+        }
+
+        queueData->priority_ = priority;
+        queueData->data_ = data;
     }
 
     template<typename P, typename T>
@@ -374,9 +392,28 @@ namespace ds::adt {
     template<typename P, typename T>
     void SortedExplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        PQItem<P, T>* queueData = nullptr;
+
+        if (this->isEmpty() || priority <= this->getSequence()->accessFirst()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertFirst().data_;
+        }
+        else if (priority >= this->getSequence()->accessLast()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertLast().data_;
+        }
+        else
+        {
+            SequenceBlockType* prevBlock = this->getSequence()->findPreviousToBlockWithProperty(
+                [priority](SequenceBlockType* block) -> bool
+                {
+                    return block->data_.priority_ >= priority;
+                });
+            queueData = &this->getSequence()->insertAfter(*prevBlock).data_;
+        }
+
+        queueData->priority_ = priority;
+        queueData->data_ = data;
     }
 
     template<typename P, typename T>
@@ -386,7 +423,7 @@ namespace ds::adt {
     }
 
     template<typename P, typename T>
-    TwoLists<P, T>::TwoLists(size_t expectedSize):
+    TwoLists<P, T>::TwoLists(size_t expectedSize) :
         shortSequence_(new ShortSequenceType(static_cast<size_t>(std::ceil(std::sqrt(expectedSize))), false)),
         longSequence_(new LongSequenceType())
     {
@@ -459,11 +496,9 @@ namespace ds::adt {
     template<typename P, typename T>
     T& TwoLists<P, T>::peek()
     {
-		if (shortSequence_->isEmpty())
-		{
-			throw std::out_of_range("Queue is empty!");
-		}
-		return shortSequence_->accessLast()->data_.data_;
+        // TODO 09
+        // po implementacii vymazte vyhodenie vynimky!
+        throw std::runtime_error("Not implemented yet");
     }
 
     template<typename P, typename T>
@@ -472,7 +507,7 @@ namespace ds::adt {
         // TODO 09
         // po implementacii vymazte vyhodenie vynimky!
         throw std::runtime_error("Not implemented yet");
-    }  
+    }
 
     template<typename P, typename T>
     BinaryHeap<P, T>::BinaryHeap() :
@@ -495,25 +530,72 @@ namespace ds::adt {
     template<typename P, typename T>
     void BinaryHeap<P, T>::push(P priority, T data)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        PQItem<P, T>& queueData = this->getHierarchy()->insertLastLeaf().data_;
+        queueData.priority_ = priority;
+        queueData.data_ = data;
+
+        HierarchyBlockType* currentBlock = this->getHierarchy()->accessLastLeaf();
+        HierarchyBlockType* blockParent = this->getHierarchy()->accessParent(*currentBlock);
+
+        while (blockParent != nullptr && currentBlock->data_.priority_ < blockParent->data_.priority_)
+        {
+            using std::swap;
+            swap(currentBlock->data_, blockParent->data_);
+
+            currentBlock = blockParent;
+            blockParent = this->getHierarchy()->accessParent(*currentBlock);
+        }
     }
 
     template<typename P, typename T>
     T& BinaryHeap<P, T>::peek()
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
+        }
+
+        return this->getHierarchy()->accessRoot()->data_.data_;
     }
 
     template<typename P, typename T>
     T BinaryHeap<P, T>::pop()
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
+        }
+
+        HierarchyBlockType* currentBlock = this->getHierarchy()->accessRoot();
+
+        T result = currentBlock->data_.data_;
+        using std::swap;
+        swap(currentBlock->data_, this->getHierarchy()->accessLastLeaf()->data_);
+        this->getHierarchy()->removeLastLeaf();
+
+        if (!this->isEmpty())
+        {
+            std::function<HierarchyBlockType* (HierarchyBlockType*)> findSonWithHigherPriority;
+            findSonWithHigherPriority = [this](HierarchyBlockType* blockParent)
+                {
+                    HierarchyBlockType* leftSon = this->getHierarchy()->accessLeftSon(*blockParent);
+                    HierarchyBlockType* rightSon = this->getHierarchy()->accessRightSon(*blockParent);
+
+                    return rightSon == nullptr || leftSon->data_.priority_ < rightSon->data_.priority_ ? leftSon : rightSon;
+                };
+
+            HierarchyBlockType* sonBlock = findSonWithHigherPriority(currentBlock);
+
+            while (sonBlock != nullptr && currentBlock->data_.priority_ > sonBlock->data_.priority_)
+            {
+                swap(currentBlock->data_, sonBlock->data_);
+
+                currentBlock = sonBlock;
+                sonBlock = findSonWithHigherPriority(currentBlock);
+            }
+        }
+
+        return result;
     }
 
     template<typename P, typename T>
