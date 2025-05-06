@@ -13,9 +13,9 @@
 
 class Reader {
 public:
-    static std::vector<Town> readData(const std::vector<std::string>& filenames) {
+    static std::vector<Town> readData() {
         std::vector<Town> towns;
-
+        std::vector<std::string> filenames = { "2020.csv", "2021.csv", "2022.csv", "2023.csv", "2024.csv" };
         for (const auto& filename : filenames) {
             int year = std::stoi(filename.substr(0, 4));
 
@@ -60,6 +60,7 @@ public:
                 }
             }
         }
+        filenames.clear();
         return towns;
     }
 

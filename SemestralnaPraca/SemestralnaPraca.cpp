@@ -16,10 +16,8 @@ int main() {
     SetConsoleOutputCP(1250);
     SetConsoleCP(1250);
 
-    std::vector<std::string> filenames = { "2020.csv", "2021.csv", "2022.csv", "2023.csv", "2024.csv" };
-    //filenames.clear();
-    std::vector<Town> towns = Reader::readData(filenames);
-
+    
+    std::vector<Town> towns = Reader::readData();
     std::vector<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
     
     bool running = true;
@@ -216,6 +214,8 @@ int main() {
             std::cout << "Invalid option.\n";
         }
     }
+    towns.clear();
+    units.clear();
     _CrtDumpMemoryLeaks();
     return 0;
 }
