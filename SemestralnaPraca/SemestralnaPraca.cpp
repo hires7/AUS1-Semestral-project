@@ -16,11 +16,11 @@ int main() {
     SetConsoleOutputCP(1250);
     SetConsoleCP(1250);
 
-    
+
     std::vector<Town> towns = Reader::readData();
     std::vector<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
-    
-    bool running = true;
+
+    /*bool running = true;
     while (running) {
 
         std::cout << "\n=== MAIN MENU ===\n";
@@ -97,7 +97,7 @@ int main() {
             bool iterating = true;
 
             while (iterating) {
-                
+
 
                 std::cout << "\nAktuálny vrchol:\n";
                 iterator.printCurrent();
@@ -213,7 +213,7 @@ int main() {
         default:
             std::cout << "Invalid option.\n";
         }
-    }
+    }*/
     towns.clear();
     units.clear();
     _CrtDumpMemoryLeaks();
