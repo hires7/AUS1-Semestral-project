@@ -17,9 +17,11 @@ int main() {
     SetConsoleCP(1250);
 
     std::vector<std::string> filenames = { "2020.csv", "2021.csv", "2022.csv", "2023.csv", "2024.csv" };
+    //filenames.clear();
     std::vector<Town> towns = Reader::readData(filenames);
-    std::vector<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
 
+    std::vector<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
+    
     bool running = true;
     while (running) {
 
@@ -215,6 +217,5 @@ int main() {
         }
     }
     _CrtDumpMemoryLeaks();
-
     return 0;
 }

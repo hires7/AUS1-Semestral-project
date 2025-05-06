@@ -50,7 +50,7 @@ std::vector<std::unique_ptr<ds::utils::Analyzer>> createAnalyzers()
 	std::vector<std::unique_ptr<ds::utils::Analyzer>> analyzers;
 	
 	analyzers.emplace_back(std::make_unique<ds::utils::ListsAnalyzer>());
-	analyzers.emplace_back(std::make_unique<ds::utils::SSTRemoveAnalyzer>());
+	//analyzers.emplace_back(std::make_unique<ds::utils::SSTRemoveAnalyzer>());
 
 	return analyzers;
 }

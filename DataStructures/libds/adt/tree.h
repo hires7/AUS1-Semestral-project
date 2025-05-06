@@ -46,7 +46,7 @@ namespace ds::adt {
 
         GeneralTree();
         GeneralTree(const GeneralTree& other);
-
+       
         size_t degree(const Node& node) const override;
         size_t nodeCount() const override;
         size_t nodeCount(const Node& node) const override;

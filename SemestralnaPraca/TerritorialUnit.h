@@ -146,7 +146,7 @@ public:
 
     void aggregateFromChildren(const std::vector<TerritorialUnit*>& children) {
         for (const auto* child : children) {
-            this->aggregateChild(*child);  // sem daj všetko
+            this->aggregateChild(*child); 
         }
     }
 
@@ -176,8 +176,8 @@ public:
             setFemalePopulation(year, getFemalePopulation(year) + child.getFemalePopulation(year));
         }
 
-        std::cout << "[AGGREGATE_CHILD] " << child.getName()
-            << " -> Pop 2020: " << child.getPopulation(2020) << "\n";
+        /*std::cout << "[AGGREGATE_CHILD] " << child.getName()
+            << " -> Pop 2020: " << child.getPopulation(2020) << "\n";*/
     }
 
     void setParentCode(size_t parent)
