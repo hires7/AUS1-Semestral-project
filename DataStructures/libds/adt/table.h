@@ -887,7 +887,7 @@ namespace ds::adt {
 
     template<typename K, typename T, typename ItemType>
     bool GeneralBinarySearchTree<K, T, ItemType>::tryFindNodeWithKey(const K& key, BSTNodeType*& node) const
-    {
+    {//toto zapamatat
         if (this->isEmpty())
         {
             return false;
@@ -926,9 +926,10 @@ namespace ds::adt {
     template<typename K, typename T, typename ItemType>
     void GeneralBinarySearchTree<K, T, ItemType>::rotateLeft(BSTNodeType* node)
     {
-        // TODO 11
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        /*BSTNodeType* leftSon = node->left_;
+		BSTNodeType* parent = node->parent_;
+		BSTNodeType* grandParent = parent->parent_;*/
+        
     }
 
     template<typename K, typename T, typename ItemType>
