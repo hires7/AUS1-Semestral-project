@@ -90,7 +90,9 @@ int main() {
 
 			case 2: {
 				auto* tree = TreeBuilder::buildTree(units);
-				TreeBuilder::assignTowns(*tree, towns, "obce.csv");
+				UnitTable unitTable;
+				TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable);
+
 				Reader::aggregateTree(*tree, tree->accessRoot());
 				size_t totalNodes = tree->nodeCount();
 				std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";

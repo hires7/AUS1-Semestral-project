@@ -11,6 +11,7 @@
 #include "Town.h"
 #include "TerritorialUnit.h"
 #include "libds/adt/tree.h"
+#include "UnitTable.h"
 
 class TreeBuilder {
 public:
@@ -19,15 +20,12 @@ public:
 
         auto* tree = new MultiwayTree<TerritorialUnit>();
 
-        // Vložíme koreň
         auto& root = tree->insertRoot();
         root.data_ = TerritorialUnit("Austria", "country", 0);
 
-        // Uchováme si zoznam už pridaných vrcholov a ich uzlov
         std::vector<std::pair<size_t, MultiwayTree<TerritorialUnit>::Node*>> createdNodes;
         createdNodes.emplace_back(0, &root);
 
-        // Jednotky, ktoré ešte nevieme priradiť (lebo nemajú zatiaľ rodiča v strome)
         std::vector<TerritorialUnit> pending = units;
 
         bool changed = true;
@@ -37,19 +35,16 @@ public:
             for (auto it = pending.begin(); it != pending.end(); ) {
                 size_t parentCode = it->getParentCode();
 
-                // Hľadaj rodiča medzi už vytvorenými uzlami
                 auto parentIt = std::find_if(createdNodes.begin(), createdNodes.end(),
                     [=](const auto& pair) {
                         return pair.first == parentCode;
                     });
 
                 if (parentIt != createdNodes.end()) {
-                    // Rodič existuje → pridáme vrchol
                     auto& parentNode = *parentIt->second;
                     auto& newNode = tree->emplaceSon(parentNode, tree->degree(parentNode));
                     newNode.data_ = *it;
 
-                    // Zapíš medzi vytvorené
                     createdNodes.emplace_back(it->getCode(), &newNode);
 
                     it = pending.erase(it);
@@ -61,7 +56,6 @@ public:
             }
         }
 
-        // Ak niektoré jednotky zostali, výpis ich ako chybu
         for (const auto& u : pending) {
             std::cerr << "[ERROR] Parent not found for: " << u.getName()
                 << " (code: " << u.getCode() << ", parent: " << u.getParentCode() << ")\n";
@@ -71,24 +65,10 @@ public:
     }
 
 
-    static void assignTowns(ds::adt::MultiwayTree<TerritorialUnit>& tree, const std::vector<Town>& towns, const std::string& obceFile) {
-        using Node = ds::adt::MultiwayTree<TerritorialUnit>::Node;
+    static void assignTowns(ds::adt::MultiwayTree<TerritorialUnit>& tree, const std::vector<Town>& towns, const std::string& obceFile, UnitTable& unitTable) {
 
-        std::unordered_map<size_t, Node*> regionNodes;
-
-        std::function<void(Node*)> collectNodes;
-        collectNodes = [&](Node* node) {
-            const TerritorialUnit& unit = node->data_;
-            regionNodes[unit.getCode()] = node;
-
-            size_t childCount = tree.degree(*node);
-            for (size_t i = 0; i < childCount; ++i) {
-                Node* child = tree.accessSon(*node, i);
-                collectNodes(child);
-            }
-            };
-
-        collectNodes(tree.accessRoot());
+        using Tree = ds::adt::MultiwayTree<TerritorialUnit>;
+        using Node = Tree::Node;
 
         std::ifstream file(obceFile);
         std::string line;
@@ -117,53 +97,41 @@ public:
                 continue;
             }
 
-            auto regionIt = regionNodes.find(regionCode);
-            if (regionIt == regionNodes.end()) {
+            Node* findNodeWithCode = nullptr;
+            std::function<void(Node*)> search = [&](Node* node) {
+                if (node->data_.getCode() == regionCode) {
+                    findNodeWithCode = node;
+                    return;
+                }
+
+                size_t childCount = tree.degree(*node);
+                for (size_t i = 0; i < childCount && !findNodeWithCode; ++i) {
+                    search(tree.accessSon(*node, i));
+                }
+                };
+
+            search(tree.accessRoot());
+
+            if (!findNodeWithCode) {
                 std::cerr << "[!] Region node not found for code: " << regionCode << "\n";
                 continue;
             }
 
-            Node& newNode = tree.emplaceSon(*regionIt->second, tree.degree(*regionIt->second));
+            Node& newNode = tree.emplaceSon(*findNodeWithCode, tree.degree(*findNodeWithCode));
             newNode.data_ = TerritorialUnit(name, "town", code);
 
             TerritorialUnit& tu = newNode.data_;
-
             tu.attachTown(townPtr);
 
             for (int year = 2020; year <= 2024; ++year) {
-                size_t pop = townPtr->getPopulation(year);
-                size_t male = townPtr->getMale(year);
-                size_t female = townPtr->getFemale(year);
-
-                tu.setMalePopulation(year, male);
-                tu.setFemalePopulation(year, female);
-                tu.setPopulation(year, pop);
-
-                /*std::cout << "[DATA] " << name << " | year " << year
-                    << " => pop: " << pop << ", male: " << male << ", female: " << female << "\n";*/
+                tu.setMalePopulation(year, townPtr->getMale(year));
+                tu.setFemalePopulation(year, townPtr->getFemale(year));
+                tu.setPopulation(year, townPtr->getPopulation(year));
             }
 
-
-            newNode.data_ = tu;
-
-
-            for (int year = 2020; year <= 2024; ++year) {
-                size_t pop = townPtr->getPopulation(year);
-                size_t male = townPtr->getMale(year);
-                size_t female = townPtr->getFemale(year);
-
-                /*std::cout << "[DATA] " << name << " | year " << year
-                    << " => pop: " << pop
-                    << ", male: " << male
-                    << ", female: " << female << "\n";*/
-
-                tu.setMalePopulation(year, male);
-                tu.setFemalePopulation(year, female);
-                tu.setPopulation(year, pop);
-            }
-
-
+            //unitTable.insert(&tu); ZMENIT KEY NA NIECO INE
         }
     }
+
 
 };

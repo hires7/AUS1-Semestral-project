@@ -41,5 +41,8 @@
     <ClInclude Include="UnitFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UnitTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
