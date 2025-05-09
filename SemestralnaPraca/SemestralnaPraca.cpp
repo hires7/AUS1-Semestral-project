@@ -26,7 +26,7 @@ int main() {
 
 			std::cout << "\n=== MAIN MENU ===\n";
 			std::cout << "1. Zadanie 1 (Town filters)\n";
-			std::cout << "2. Zadanie 2 (Territorial hierarchy)\n";
+			std::cout << "2. Zadanie 2 a 3 (Territorial hierarchy)\n";
 			std::cout << "3. Exit\n";
 			std::cout << "Choose: ";
 
@@ -91,6 +91,17 @@ int main() {
 			case 2: {
 				auto* tree = TreeBuilder::buildTree(units);
 				UnitTable unitTable;
+				std::function<void(ds::adt::MultiwayTree<TerritorialUnit>::Node*)> insertAll;
+				insertAll = [&](auto* node) {
+					unitTable.insert(&node->data_);
+					size_t count = tree->degree(*node);
+					for (size_t i = 0; i < count; ++i) {
+						insertAll(tree->accessSon(*node, i));
+					}
+					};
+				insertAll(tree->accessRoot());
+
+
 				TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable);
 
 				Reader::aggregateTree(*tree, tree->accessRoot());
@@ -111,7 +122,8 @@ int main() {
 					std::cout << "3. Posun k rodičovi\n";
 					std::cout << "4. Vypíš všetkých synov\n";
 					std::cout << "5. Zobraziť populáciu pre rok\n";
-					std::cout << "6. Koniec\n";
+					std::cout << "6. Zadanie 3: Vyhladat jednotku\n";
+					std::cout << "7. Koniec\n";
 
 
 					int iterChoice;
@@ -199,6 +211,29 @@ int main() {
 						iterator.printPopulationByYear();
 						break;
 					case 6:
+						{
+							std::string name, type;
+							std::cout << "Zadaj názov jednotky: ";
+							std::cin.ignore();
+							std::getline(std::cin, name);
+							std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
+							std::cin >> type;
+
+
+							auto* list = unitTable.findAll(name, type);
+							if (!list || list->size() == 0) {
+								std::cout << "Nenašli sa žiadne jednotky pre: " << name << " [" << type << "]\n";
+							}
+							else {
+								std::cout << "Nájdené jednotky pre '" << name << "' [" << type << "]:\n";
+								for (size_t i = 0; i < list->size(); ++i) {
+									TerritorialUnit* unit = list->access(i)->data_;
+									std::cout << " - " << unit->toString() << "\n";
+								}
+							}
+						break;
+						}
+					case 7:
 						iterating = false;
 						break;
 

@@ -129,7 +129,7 @@ public:
                 tu.setPopulation(year, townPtr->getPopulation(year));
             }
 
-            //unitTable.insert(&tu); ZMENIT KEY NA NIECO INE
+            unitTable.insert(&tu);
         }
     }
 

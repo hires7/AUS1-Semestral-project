@@ -1,64 +1,77 @@
 #pragma once
 
 #include "TerritorialUnit.h"
-
-#include <string>
-#include <utility>
-#include <iostream>
-
 #include "libds/adt/table.h"
+#include "libds/amt/implicit_sequence.h"
+#include <string>
+#include <iostream>
 
 class UnitTable {
 private:
-    ds::adt::SortedSTab<std::string, TerritorialUnit*> geo_;
-    ds::adt::SortedSTab<std::string, TerritorialUnit*> rep_;
-    ds::adt::SortedSTab<std::string, TerritorialUnit*> reg_;
-    ds::adt::SortedSTab<std::string, TerritorialUnit*> town_;
+    using UnitList = ds::amt::IS<TerritorialUnit*>;
+
+    ds::adt::SortedSTab<std::string, UnitList*> geo_;
+    ds::adt::SortedSTab<std::string, UnitList*> rep_;
+    ds::adt::SortedSTab<std::string, UnitList*> reg_;
+    ds::adt::SortedSTab<std::string, UnitList*> town_;
+    ds::adt::SortedSTab<std::string, UnitList*> country_;
+
+    ds::adt::SortedSTab<std::string, UnitList*>& getTable(const std::string& type) {
+        if (type == "geo") return geo_;
+        if (type == "rep") return rep_;
+        if (type == "reg") return reg_;
+        if (type == "town") return town_;
+        if (type == "country") return country_;
+        throw std::invalid_argument("Unknown type: " + type);
+    }
 
 public:
-    void insert(TerritorialUnit* unit) {
-        const std::string& type = unit->getType();
-        const std::string& name = unit->getName();
+    ~UnitTable() {
+        auto cleanup = [](auto& table) {
+            for (auto& item : table) {
+                delete item.data_;
+            }
+            table.clear();
+            };
+        cleanup(geo_);
+        cleanup(rep_);
+        cleanup(reg_);
+        cleanup(town_);
+        cleanup(country_);
+    }
 
-        if (type == "geo") {
-            geo_.insert(name, unit);
-        }
-        else if (type == "rep") {
-            rep_.insert(name, unit);
-        }
-        else if (type == "reg") {
-            reg_.insert(name, unit);
-        }
-        else if (type == "town") {
-            town_.insert(name, unit);
+    void insert(TerritorialUnit* unit) {
+        const std::string& name = unit->getName();
+        const std::string& type = unit->getType();
+        auto& table = getTable(type);
+
+        UnitList* list = nullptr;
+        UnitList** listPtr = &list;
+
+        if (!table.tryFind(name, listPtr)) {
+            list = new UnitList();
+            list->insertLast().data_ = unit;
+            table.insert(name, list);
         }
         else {
-            std::cerr << "[UnitTable] Unknown unit type: " << type << "\n";
+            (*listPtr)->insertLast().data_ = unit;
         }
     }
 
-    TerritorialUnit* find(const std::string& name, const std::string& type) {
-        TerritorialUnit* result = nullptr;
-        TerritorialUnit** resultPtr = &result;
+    UnitList* findAll(const std::string& name, const std::string& type) {
+        auto& table = getTable(type);
+        UnitList* list = nullptr;
+        UnitList** listPtr = &list;
 
-        if (type == "geo") {
-            geo_.tryFind(name, resultPtr);
+        if (table.tryFind(name, listPtr)) {
+            return *listPtr;
         }
-        else if (type == "rep") {
-            rep_.tryFind(name, resultPtr);
-        }
-        else if (type == "reg") {
-            reg_.tryFind(name, resultPtr);
-        }
-        else if (type == "town") {
-            town_.tryFind(name, resultPtr);
-        }
-        else {
-            std::cerr << "[UnitTable] Unknown unit type in find(): " << type << "\n";
-        }
+        return nullptr;
+    }
 
-        return result;
+    TerritorialUnit* findFirst(const std::string& name, const std::string& type) {
+        UnitList* list = findAll(name, type);
+        return (list && list->size() > 0) ? list->access(0)->data_ : nullptr;
     }
 
 };
-
