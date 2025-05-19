@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -11,11 +10,12 @@
 #include "Town.h"
 #include "TerritorialUnit.h"
 #include "libds/adt/tree.h"
+#include "libds/adt/list.h"
 #include "UnitTable.h"
 
 class TreeBuilder {
 public:
-    static ds::adt::MultiwayTree<TerritorialUnit>* buildTree(const std::vector<TerritorialUnit>& units) {
+    static ds::adt::MultiwayTree<TerritorialUnit>* buildTree(ds::adt::ImplicitList<TerritorialUnit>& units) {
         using namespace ds::adt;
 
         auto* tree = new MultiwayTree<TerritorialUnit>();
@@ -23,42 +23,49 @@ public:
         auto& root = tree->insertRoot();
         root.data_ = TerritorialUnit("Austria", "country", 0);
 
-        std::vector<std::pair<size_t, MultiwayTree<TerritorialUnit>::Node*>> createdNodes;
-        createdNodes.emplace_back(0, &root);
+        ImplicitList<std::pair<size_t, MultiwayTree<TerritorialUnit>::Node*>> createdNodes;
+        createdNodes.insertLast(std::make_pair(0, &root));
 
-        std::vector<TerritorialUnit> pending = units;
+        ImplicitList<TerritorialUnit> pending;
+        for (size_t k = 0; k < units.size(); ++k) {
+            TerritorialUnit unit = units.access(k);
+            pending.insertLast(unit);
+        }
 
         bool changed = true;
-        while (!pending.empty() && changed) {
+        while (!pending.isEmpty() && changed) {
             changed = false;
 
-            for (auto it = pending.begin(); it != pending.end(); ) {
-                size_t parentCode = it->getParentCode();
+            size_t i = 0;
+            while (i < pending.size()) {
+                TerritorialUnit unit = pending.access(i);
+                size_t parentCode = unit.getParentCode();
 
-                auto parentIt = std::find_if(createdNodes.begin(), createdNodes.end(),
-                    [=](const auto& pair) {
-                        return pair.first == parentCode;
-                    });
+                bool parentFound = false;
+                MultiwayTree<TerritorialUnit>::Node* parentNode = nullptr;
+                for (size_t j = 0; j < createdNodes.size(); ++j) {
+                    auto nodePair = createdNodes.access(j);
+                    if (nodePair.first == parentCode) {
+                        parentFound = true;
+                        parentNode = nodePair.second;
+                        break;
+                    }
+                }
 
-                if (parentIt != createdNodes.end()) {
-                    auto& parentNode = *parentIt->second;
-                    auto& newNode = tree->emplaceSon(parentNode, tree->degree(parentNode));
-                    newNode.data_ = *it;
+                if (parentFound) {
+                    auto& newNode = tree->emplaceSon(*parentNode, tree->degree(*parentNode));
+                    newNode.data_ = unit;
 
-                    createdNodes.emplace_back(it->getCode(), &newNode);
+                    createdNodes.insertLast(std::make_pair(unit.getCode(), &newNode));
 
-                    it = pending.erase(it);
+                    pending.remove(i);
+
                     changed = true;
                 }
                 else {
-                    ++it;
+                    ++i;
                 }
             }
-        }
-
-        for (const auto& u : pending) {
-            std::cerr << "[ERROR] Parent not found for: " << u.getName()
-                << " (code: " << u.getCode() << ", parent: " << u.getParentCode() << ")\n";
         }
 
         return tree;
@@ -66,7 +73,6 @@ public:
 
 
     static void assignTowns(ds::adt::MultiwayTree<TerritorialUnit>& tree, const std::vector<Town>& towns, const std::string& obceFile, UnitTable& unitTable) {
-
         using Tree = ds::adt::MultiwayTree<TerritorialUnit>;
         using Node = Tree::Node;
 

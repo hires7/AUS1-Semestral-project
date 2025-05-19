@@ -2,15 +2,15 @@
 
 #include "TerritorialUnit.h"
 #include "libds/adt/table.h"
-#include "libds/amt/implicit_sequence.h"
+#include "libds/adt/list.h"
 #include <string>
 #include <iostream>
 
 class UnitTable {
 private:
-    using UnitList = ds::amt::IS<TerritorialUnit*>;
+    using UnitList = ds::adt::ImplicitList<TerritorialUnit*>;
 
-    ds::adt::SortedSTab<std::string, UnitList*> geo_;   
+    ds::adt::SortedSTab<std::string, UnitList*> geo_;
     ds::adt::SortedSTab<std::string, UnitList*> rep_;
     ds::adt::SortedSTab<std::string, UnitList*> reg_;
     ds::adt::SortedSTab<std::string, UnitList*> town_;
@@ -33,6 +33,7 @@ public:
             }
             table.clear();
             };
+
         cleanup(geo_);
         cleanup(rep_);
         cleanup(reg_);
@@ -50,11 +51,11 @@ public:
 
         if (!table.tryFind(name, listPtr)) {
             list = new UnitList();
-            list->insertLast().data_ = unit;
+            list->insertLast(unit);
             table.insert(name, list);
         }
         else {
-            (*listPtr)->insertLast().data_ = unit;
+            (*listPtr)->insertLast(unit);
         }
     }
 
@@ -71,7 +72,6 @@ public:
 
     TerritorialUnit* findFirst(const std::string& name, const std::string& type) {
         UnitList* list = findAll(name, type);
-        return (list && list->size() > 0) ? list->access(0)->data_ : nullptr;
+        return (list && list->size() > 0) ? list->access(0) : nullptr;
     }
-
 };

@@ -1,6 +1,5 @@
 ﻿#define NOMINMAX
 #define _CRTDBG_MAP_ALLOC
-#include <cstdlib>
 #include <crtdbg.h>
 #include <iostream>
 #include <windows.h>
@@ -19,7 +18,24 @@ int main() {
 
 
 		std::vector<Town> towns = Reader::readData();
-		std::vector<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
+		ds::adt::ImplicitList<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
+
+		auto* tree = TreeBuilder::buildTree(units);
+		UnitTable unitTable;
+		std::function<void(ds::adt::MultiwayTree<TerritorialUnit>::Node*)> insertAll;
+		insertAll = [&](auto* node) {
+			unitTable.insert(&node->data_);
+			size_t count = tree->degree(*node);
+			for (size_t i = 0; i < count; ++i) {
+				insertAll(tree->accessSon(*node, i));
+			}
+			};
+		insertAll(tree->accessRoot());
+
+
+		TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable);
+
+		Reader::aggregateTree(*tree, tree->accessRoot());
 
 		bool running = true;
 		while (running) {
@@ -89,29 +105,12 @@ int main() {
 			}
 
 			case 2: {
-				auto* tree = TreeBuilder::buildTree(units);
-				UnitTable unitTable;
-				std::function<void(ds::adt::MultiwayTree<TerritorialUnit>::Node*)> insertAll;
-				insertAll = [&](auto* node) {
-					unitTable.insert(&node->data_);
-					size_t count = tree->degree(*node);
-					for (size_t i = 0; i < count; ++i) {
-						insertAll(tree->accessSon(*node, i));
-					}
-					};
-				insertAll(tree->accessRoot());
-
-
-				TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable);
-
-				Reader::aggregateTree(*tree, tree->accessRoot());
 				size_t totalNodes = tree->nodeCount();
 				std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";
 				HierarchyIterator iterator(tree);
 				bool iterating = true;
 
 				while (iterating) {
-
 
 					std::cout << "\nAktuálny vrchol:\n";
 					iterator.printCurrent();
@@ -125,6 +124,7 @@ int main() {
 					std::cout << "6. Zadanie 3: Vyhladat jednotku\n";
 					std::cout << "7. Koniec\n";
 
+					std::vector<TerritorialUnit*> results;
 
 					int iterChoice;
 					std::cin >> iterChoice;
@@ -145,10 +145,21 @@ int main() {
 							std::cout << "Zadaj reťazec: ";
 							std::cin >> s;
 
-							iterator.applyPredicateToDescendants(
+							results = iterator.applyPredicateToDescendants(
 								[=](const TerritorialUnit& unit) {
 									return UnitFilter::nameContains(s)(unit);
 								});
+
+							if (!results.empty()) {
+								std::cout << "\nVýsledky (" << results.size() << "):\n";
+								for (const auto* unit : results) {
+									std::cout << " - " << unit->toString() << "\n";
+								}
+							}
+							else {
+								std::cout << "\nNenašli sa žiadne výsledky.\n";
+							}
+
 
 						}
 						else if (f == 2) {
@@ -159,10 +170,21 @@ int main() {
 							std::cout << "Min: ";
 							std::cin >> min;
 
-							iterator.applyPredicateToDescendants(
+							results = iterator.applyPredicateToDescendants(
 								[=](const TerritorialUnit& unit) {
 									return UnitFilter::hasMinPopulation(year, min)(unit);
 								});
+
+							if (!results.empty()) {
+								std::cout << "\nVýsledky (" << results.size() << "):\n";
+								for (const auto* unit : results) {
+									std::cout << " - " << unit->toString() << "\n";
+								}
+							}
+							else {
+								std::cout << "\nNenašli sa žiadne výsledky.\n";
+							}
+
 
 						}
 						else if (f == 3) {
@@ -173,10 +195,21 @@ int main() {
 							std::cout << "Max: ";
 							std::cin >> max;
 
-							iterator.applyPredicateToDescendants(
+							results = iterator.applyPredicateToDescendants(
 								[=](const TerritorialUnit& unit) {
 									return UnitFilter::hasMaxPopulation(year, max)(unit);
 								});
+
+							if (!results.empty()) {
+								std::cout << "\nVýsledky (" << results.size() << "):\n";
+								for (const auto* unit : results) {
+									std::cout << " - " << unit->toString() << "\n";
+								}
+							}
+							else {
+								std::cout << "\nNenašli sa žiadne výsledky.\n";
+							}
+
 
 						}
 						else if (f == 4) {
@@ -184,10 +217,21 @@ int main() {
 							std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
 							std::cin >> type;
 
-							iterator.applyPredicateToDescendants(
+							results = iterator.applyPredicateToDescendants(
 								[=](const TerritorialUnit& unit) {
 									return UnitFilter::hasType(type)(unit);
 								});
+
+							if (!results.empty()) {
+								std::cout << "\nVýsledky (" << results.size() << "):\n";
+								for (const auto* unit : results) {
+									std::cout << " - " << unit->toString() << "\n";
+								}
+							}
+							else {
+								std::cout << "\nNenašli sa žiadne výsledky.\n";
+							}
+
 						}
 						break;
 					}
@@ -227,7 +271,7 @@ int main() {
 							else {
 								std::cout << "Nájdené jednotky pre '" << name << "' [" << type << "]:\n";
 								for (size_t i = 0; i < list->size(); ++i) {
-									TerritorialUnit* unit = list->access(i)->data_;
+									TerritorialUnit* unit = list->access(i);
 									std::cout << " - " << unit->toString() << "\n";
 								}
 							}

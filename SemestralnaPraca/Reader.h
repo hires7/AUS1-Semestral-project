@@ -10,12 +10,17 @@
 #include "Town.h"
 #include "TerritorialUnit.h"
 #include "libds/adt/tree.h"
+#include <libds/adt/list.h>
 
 class Reader {
 public:
     static std::vector<Town> readData() {
         std::vector<Town> towns;
-        std::vector<std::string> filenames = { "2020.csv", "2021.csv", "2022.csv", "2023.csv", "2024.csv" };
+        const std::vector<std::string> filenames = {
+            "2020.csv", "2021.csv", "2022.csv",
+            "2023.csv", "2024.csv"
+        };
+
         for (const auto& filename : filenames) {
             int year = std::stoi(filename.substr(0, 4));
 
@@ -25,9 +30,9 @@ public:
             std::string line;
 
             while (std::getline(file, line)) {
+                std::vector<std::string> tokens;
                 std::istringstream iss(line);
                 std::string token;
-                std::vector<std::string> tokens;
 
                 while (std::getline(iss, token, ';')) {
                     tokens.push_back(token);
@@ -60,12 +65,11 @@ public:
                 }
             }
         }
-        filenames.clear();
         return towns;
     }
 
-    static std::vector<TerritorialUnit> parseHierarchy(const std::string& filename) {
-        std::vector<TerritorialUnit> units;
+    static ds::adt::ImplicitList<TerritorialUnit> parseHierarchy(const std::string& filename) {
+        ds::adt::ImplicitList<TerritorialUnit> units;
         std::ifstream file(filename);
         std::string line;
 
@@ -74,6 +78,7 @@ public:
             std::string name, codeStr;
             std::getline(iss, name, ';');
             std::getline(iss, codeStr, ';');
+
             std::string digits;
             for (char c : codeStr) {
                 if (std::isdigit(c)) {
@@ -82,18 +87,14 @@ public:
             }
 
             size_t code = safeStoul(digits);
-
-            size_t parentCode = 0;
-            if (code >= 10) {
-                parentCode = code / 10;
-            }
+            size_t parentCode = code >= 10 ? code / 10 : 0;
 
             std::string type;
             if (code < 10) type = "geo";
             else if (code < 100) type = "rep";
             else type = "reg";
 
-            units.emplace_back(name, type, code, parentCode);
+            units.insertLast(TerritorialUnit(name, type, code, parentCode));
         }
 
         return units;

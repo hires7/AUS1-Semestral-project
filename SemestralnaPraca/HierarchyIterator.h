@@ -50,22 +50,24 @@ public:
         }
     }
 
-    void applyPredicateToDescendants(const std::function<bool(const TerritorialUnit&)>& pred) const {
-        std::function<void(Node*)> recurse;
-        recurse = [&](Node* node) {
-            if (pred(node->data_)) {
-                std::cout << "- " << node->data_.getName() << "\n";
-            }
+    std::vector<TerritorialUnit*> applyPredicateToDescendants(const std::function<bool(const TerritorialUnit&)>& predicate) {
+	    std::vector<TerritorialUnit*> results;
 
-            size_t children = tree_->degree(*node);
-            for (size_t i = 0; i < children; ++i) {
-                Node* child = tree_->accessSon(*node, i);
-                recurse(child);
-            }
-            };
+	    std::function<void(Node*)> recurse = [&](Node* node) {
+	        if (predicate(node->data_)) {
+	            results.push_back(&node->data_);
+	        }
 
-        recurse(current_);
-    }
+	        size_t childCount = tree_->degree(*node);
+	        for (size_t i = 0; i < childCount; ++i) {
+	            recurse(tree_->accessSon(*node, i));
+	        }
+	    };
+
+	    recurse(current_);
+	    return results;
+	}
+
 
     Node* getCurrent() const {
         return current_;
