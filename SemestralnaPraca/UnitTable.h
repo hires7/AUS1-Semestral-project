@@ -10,7 +10,7 @@ class UnitTable {
 private:
     using UnitList = ds::amt::IS<TerritorialUnit*>;
 
-    ds::adt::SortedSTab<std::string, UnitList*> geo_;
+    ds::adt::SortedSTab<std::string, UnitList*> geo_;   
     ds::adt::SortedSTab<std::string, UnitList*> rep_;
     ds::adt::SortedSTab<std::string, UnitList*> reg_;
     ds::adt::SortedSTab<std::string, UnitList*> town_;
