@@ -64,9 +64,9 @@ namespace ds::adt {
 
         IteratorType begin();
         IteratorType end();
-
-    protected:
         SequenceType* getSequence() const;
+    protected:
+       
     };
 
     //----------

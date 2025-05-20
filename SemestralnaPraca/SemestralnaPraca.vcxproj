@@ -135,6 +135,7 @@
     <ClInclude Include="Filter.h" />
     <ClInclude Include="HierarchyIterator.h" />
     <ClInclude Include="Reader.h" />
+    <ClInclude Include="Sorter.h" />
     <ClInclude Include="TerritorialUnit.h" />
     <ClInclude Include="Town.h" />
     <ClInclude Include="TreeBuilder.h" />

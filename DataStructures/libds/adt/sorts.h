@@ -126,54 +126,26 @@ namespace ds::adt
     template<typename T>
     void SelectSort<T>::sort(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare)
     {
-        for (size_t i = 0; i < is.size() - 1; ++i)
-        {
-            size_t min = i;
-            for (size_t j = i + 1; j < is.size(); ++j)
-            {
-                if (compare(is.access(j)->data_, is.access(min)->data_))
-                {
-                    min = j;
-                }
-            }
-            using std::swap;
-            swap(is.access(i)->data_, is.access(min)->data_);
-        }
+        // TODO 12
+        // po implementacii vymazte vyhodenie vynimky!
+        throw std::runtime_error("Not implemented yet");
     }
 
     template<typename T>
     void InsertSort<T>::sort(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare)
     {
-        for (size_t i = 1; i < is.size(); ++i)
-        {
-            T tmp = is.access(i)->data_;
-            size_t j = i;
-            while (j > 0 && compare(tmp, is.access(j - 1)->data_))
-            {
-                is.access(j)->data_ = is.access(j - 1)->data_;
-                --j;
-            }
-            is.access(j)->data_ = tmp;
-        }
+        // TODO 12
+        // po implementacii vymazte vyhodenie vynimky!
+        throw std::runtime_error("Not implemented yet");
+        
     }
 
     template<typename T>
     void BubbleSort<T>::sort(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare)
     {
-        bool swapped;
-        do
-        {
-            swapped = false;
-            for (size_t i = 0; i < is.size() - 1; ++i)
-            {
-                if (compare(is.access(i + 1)->data_, is.access(i)->data_))
-                {
-                    using std::swap;
-                    swap(is.access(i + 1)->data_, is.access(i)->data_);
-                    swapped = true;
-                }
-            }
-        } while (swapped);
+        // TODO 12
+        // po implementacii vymazte vyhodenie vynimky!
+        throw std::runtime_error("Not implemented yet");
     }
 
     template<typename T>

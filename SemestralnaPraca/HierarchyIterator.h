@@ -50,23 +50,23 @@ public:
         }
     }
 
-    std::vector<TerritorialUnit*> applyPredicateToDescendants(const std::function<bool(const TerritorialUnit&)>& predicate) {
-	    std::vector<TerritorialUnit*> results;
+    ds::adt::ImplicitList<TerritorialUnit*>* applyPredicateToDescendants(const std::function<bool(const TerritorialUnit&)>& predicate) {
+        auto* results  = new ds::adt::ImplicitList<TerritorialUnit*>;
 
-	    std::function<void(Node*)> recurse = [&](Node* node) {
-	        if (predicate(node->data_)) {
-	            results.push_back(&node->data_);
-	        }
+        std::function<void(Node*)> recurse = [&](Node* node) {
+            if (predicate(node->data_)) {
+                results->insertLast(&node->data_);  // Changed from push_back
+            }
 
-	        size_t childCount = tree_->degree(*node);
-	        for (size_t i = 0; i < childCount; ++i) {
-	            recurse(tree_->accessSon(*node, i));
-	        }
-	    };
+            size_t childCount = tree_->degree(*node);
+            for (size_t i = 0; i < childCount; ++i) {
+                recurse(tree_->accessSon(*node, i));
+            }
+            };
 
-	    recurse(current_);
-	    return results;
-	}
+        recurse(current_);
+        return results;
+    }
 
 
     Node* getCurrent() const {

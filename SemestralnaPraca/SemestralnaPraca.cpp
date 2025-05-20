@@ -9,6 +9,7 @@
 #include "Filter.h"
 #include "TreeBuilder.h"
 #include "HierarchyIterator.h"
+#include "Sorter.h"
 #include "UnitFilter.h"
 
 int main() {
@@ -104,190 +105,198 @@ int main() {
 				break;
 			}
 
-			case 2: {
-				size_t totalNodes = tree->nodeCount();
-				std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";
-				HierarchyIterator iterator(tree);
-				bool iterating = true;
+            case 2: {
+                size_t totalNodes = tree->nodeCount();
+                std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";
+                HierarchyIterator iterator(tree);
+                bool iterating = true;
 
-				while (iterating) {
+                while (iterating) {
+                    std::cout << "\nAktuálny vrchol:\n";
+                    iterator.printCurrent();
 
-					std::cout << "\nAktuálny vrchol:\n";
-					iterator.printCurrent();
+                    std::cout << "\nMožnosti:\n";
+                    std::cout << "1. Filtrovať obce podľa názvu alebo populácie\n";
+                    std::cout << "2. Posun na syna\n";
+                    std::cout << "3. Posun k rodičovi\n";
+                    std::cout << "4. Vypíš všetkých synov\n";
+                    std::cout << "5. Zobraziť populáciu pre rok\n";
+                    std::cout << "6. Zadanie 3: Vyhladat jednotku\n";
+                    std::cout << "7. Koniec\n";
 
-					std::cout << "\nMožnosti:\n";
-					std::cout << "1. Filtrovať obce podľa názvu alebo populácie\n";
-					std::cout << "2. Posun na syna\n";
-					std::cout << "3. Posun k rodičovi\n";
-					std::cout << "4. Vypíš všetkých synov\n";
-					std::cout << "5. Zobraziť populáciu pre rok\n";
-					std::cout << "6. Zadanie 3: Vyhladat jednotku\n";
-					std::cout << "7. Koniec\n";
+                    int iterChoice;
+                    std::cin >> iterChoice;
 
-					std::vector<TerritorialUnit*> results;
+                    switch (iterChoice) {
+                    case 1: {
+                        std::cout << "\n1. Názov obsahuje\n"
+                            << "2. Minimálna populácia\n"
+                            << "3. Maximálna populácia\n"
+                            << "4. Typ jednotky (geo, rep, reg, town)\n"
+                            << "Vyber filter: ";
 
-					int iterChoice;
-					std::cin >> iterChoice;
+                        int f;
+                        std::cin >> f;
 
-					switch (iterChoice) {
-					case 1: {
-						std::cout << "\n1. Názov obsahuje\n"
-							<< "2. Minimálna populácia\n"
-							<< "3. Maximálna populácia\n"
-							<< "4. Typ jednotky (geo, rep, reg, town)\n"
-							<< "Vyber filter: ";
+                        if (f == 1 || f == 2 || f == 3 || f == 4) {
+                            ds::adt::ImplicitList<TerritorialUnit*>* results = nullptr;
 
-						int f;
-						std::cin >> f;
+                            if (f == 1) {
+                                std::string s;
+                                std::cout << "Zadaj reťazec: ";
+                                std::cin >> s;
+                                results = iterator.applyPredicateToDescendants([=](const TerritorialUnit& unit) {
+                                    return UnitFilter::nameContains(s)(unit);
+                                    });
+                            }
+                            else if (f == 2) {
+                                int year;
+                                size_t min;
+                                std::cout << "Rok: ";
+                                std::cin >> year;
+                                std::cout << "Min: ";
+                                std::cin >> min;
+                                results = iterator.applyPredicateToDescendants([=](const TerritorialUnit& unit) {
+                                    return UnitFilter::hasMinPopulation(year, min)(unit);
+                                    });
+                            }
+                            else if (f == 3) {
+                                int year;
+                                size_t max;
+                                std::cout << "Rok: ";
+                                std::cin >> year;
+                                std::cout << "Max: ";
+                                std::cin >> max;
+                                results = iterator.applyPredicateToDescendants([=](const TerritorialUnit& unit) {
+                                    return UnitFilter::hasMaxPopulation(year, max)(unit);
+                                    });
+                            }
+                            else if (f == 4) {
+                                std::string type;
+                                std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
+                                std::cin >> type;
+                                results = iterator.applyPredicateToDescendants([=](const TerritorialUnit& unit) {
+                                    return UnitFilter::hasType(type)(unit);
+                                    });
+                            }
 
-						if (f == 1) {
-							std::string s;
-							std::cout << "Zadaj reťazec: ";
-							std::cin >> s;
+                            if (!results || results->isEmpty()) {
+                                std::cout << "\nNenašli sa žiadne výsledky.\n";
+                                delete results;
+                                break;
+                            }
 
-							results = iterator.applyPredicateToDescendants(
-								[=](const TerritorialUnit& unit) {
-									return UnitFilter::nameContains(s)(unit);
-								});
+                            // výpis nájdených jednotiek
+                            std::cout << "\nVýsledky (" << results->size() << "):\n";
+                            for (size_t i = 0; i < results->size(); ++i) {
+                                const auto* unit = results->access(i);
+                                std::cout << " - " << unit->toString() << "\n";
+                            }
 
-							if (!results.empty()) {
-								std::cout << "\nVýsledky (" << results.size() << "):\n";
-								for (const auto* unit : results) {
-									std::cout << " - " << unit->toString() << "\n";
-								}
-							}
-							else {
-								std::cout << "\nNenašli sa žiadne výsledky.\n";
-							}
+                            // triediace menu
+                            bool sorting = true;
+                            Sorter sorter;
+                            while (sorting) {
+                                std::cout << "\n--- Zoradiť výsledky ---\n";
+                                std::cout << "1. Podľa mena\n";
+                                std::cout << "2. Podľa celkovej populácie\n";
+                                std::cout << "3. Podľa pohlavia\n";
+                                std::cout << "4. Späť\n";
+                                std::cout << "Vyber možnosť: ";
+                                int sortOption;
+                                std::cin >> sortOption;
 
+                                switch (sortOption) {
+                                case 1:
+                                    sorter.sortByName(results);
+                                    break;
+                                case 2: {
+                                    int year;
+                                    std::cout << "Zadaj rok: ";
+                                    std::cin >> year;
+                                    sorter.sortByPopulation(results, year);
+                                    break;
+                                }
+                                case 3: {
+                                    int year;
+                                    char gender;
+                                    std::cout << "Zadaj rok: ";
+                                    std::cin >> year;
+                                    std::cout << "M (muži) / F (ženy): ";
+                                    std::cin >> gender;
+                                    bool male = (gender == 'M' || gender == 'm');
+                                    sorter.sortByGenderPopulation(results, year, male);
+                                    break;
+                                }
+                                case 4:
+                                    sorting = false;
+                                    continue;
+                                default:
+                                    std::cout << "Neplatná možnosť.\n";
+                                    continue;
+                                }
 
-						}
-						else if (f == 2) {
-							int year;
-							size_t min;
-							std::cout << "Rok: ";
-							std::cin >> year;
-							std::cout << "Min: ";
-							std::cin >> min;
+                                std::cout << "\nZoradené výsledky:\n";
+                                for (size_t i = 0; i < results->size(); ++i) {
+                                    const auto* unit = results->access(i);
+                                    std::cout << " - " << unit->toString() << "\n";
+                                }
+                            }
 
-							results = iterator.applyPredicateToDescendants(
-								[=](const TerritorialUnit& unit) {
-									return UnitFilter::hasMinPopulation(year, min)(unit);
-								});
+                            delete results;
+                        }
+                        break;
+                    }
 
-							if (!results.empty()) {
-								std::cout << "\nVýsledky (" << results.size() << "):\n";
-								for (const auto* unit : results) {
-									std::cout << " - " << unit->toString() << "\n";
-								}
-							}
-							else {
-								std::cout << "\nNenašli sa žiadne výsledky.\n";
-							}
+                    case 2: {
+                        iterator.printChildren();
+                        std::cout << "Zadaj index syna, na ktorého sa chceš presunúť: ";
+                        size_t index;
+                        std::cin >> index;
+                        iterator.moveToChild(index);
+                        break;
+                    }
+                    case 3:
+                        iterator.moveToParent();
+                        break;
+                    case 4:
+                        iterator.printChildren();
+                        break;
+                    case 5:
+                        iterator.printPopulationByYear();
+                        break;
+                    case 6: {
+                        std::string name, type;
+                        std::cout << "Zadaj názov jednotky: ";
+                        std::cin.ignore();
+                        std::getline(std::cin, name);
+                        std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
+                        std::cin >> type;
 
+                        auto* list = unitTable.findAll(name, type);
+                        if (!list || list->size() == 0) {
+                            std::cout << "Nenašli sa žiadne jednotky pre: " << name << " [" << type << "]\n";
+                        }
+                        else {
+                            std::cout << "Nájdené jednotky pre '" << name << "' [" << type << "]:\n";
+                            for (size_t i = 0; i < list->size(); ++i) {
+                                TerritorialUnit* unit = list->access(i);
+                                std::cout << " - " << unit->toString() << "\n";
+                            }
+                        }
+                        break;
+                    }
+                    case 7:
+                        iterating = false;
+                        break;
+                    }
+                }
 
-						}
-						else if (f == 3) {
-							int year;
-							size_t max;
-							std::cout << "Rok: ";
-							std::cin >> year;
-							std::cout << "Max: ";
-							std::cin >> max;
+                delete tree;
+                break;
+            }
 
-							results = iterator.applyPredicateToDescendants(
-								[=](const TerritorialUnit& unit) {
-									return UnitFilter::hasMaxPopulation(year, max)(unit);
-								});
-
-							if (!results.empty()) {
-								std::cout << "\nVýsledky (" << results.size() << "):\n";
-								for (const auto* unit : results) {
-									std::cout << " - " << unit->toString() << "\n";
-								}
-							}
-							else {
-								std::cout << "\nNenašli sa žiadne výsledky.\n";
-							}
-
-
-						}
-						else if (f == 4) {
-							std::string type;
-							std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
-							std::cin >> type;
-
-							results = iterator.applyPredicateToDescendants(
-								[=](const TerritorialUnit& unit) {
-									return UnitFilter::hasType(type)(unit);
-								});
-
-							if (!results.empty()) {
-								std::cout << "\nVýsledky (" << results.size() << "):\n";
-								for (const auto* unit : results) {
-									std::cout << " - " << unit->toString() << "\n";
-								}
-							}
-							else {
-								std::cout << "\nNenašli sa žiadne výsledky.\n";
-							}
-
-						}
-						break;
-					}
-
-
-					case 2: {
-						iterator.printChildren();
-						std::cout << "Zadaj index syna, na ktorého sa chceš presunúť: ";
-						size_t index;
-						std::cin >> index;
-						iterator.moveToChild(index);
-						break;
-					}
-					case 3:
-						iterator.moveToParent();
-						break;
-					case 4:
-						iterator.printChildren();
-						break;
-					case 5:
-						iterator.printPopulationByYear();
-						break;
-					case 6:
-						{
-							std::string name, type;
-							std::cout << "Zadaj názov jednotky: ";
-							std::cin.ignore();
-							std::getline(std::cin, name);
-							std::cout << "Zadaj typ jednotky (geo, rep, reg, town): ";
-							std::cin >> type;
-
-
-							auto* list = unitTable.findAll(name, type);
-							if (!list || list->size() == 0) {
-								std::cout << "Nenašli sa žiadne jednotky pre: " << name << " [" << type << "]\n";
-							}
-							else {
-								std::cout << "Nájdené jednotky pre '" << name << "' [" << type << "]:\n";
-								for (size_t i = 0; i < list->size(); ++i) {
-									TerritorialUnit* unit = list->access(i);
-									std::cout << " - " << unit->toString() << "\n";
-								}
-							}
-						break;
-						}
-					case 7:
-						iterating = false;
-						break;
-
-					}
-				}
-
-				delete tree;
-				break;
-			}
-
+				
 			case 3:
 				running = false;
 				break;
@@ -295,10 +304,11 @@ int main() {
 			default:
 				std::cout << "Invalid option.\n";
 			}
-		} 
-		towns.clear();
-		units.clear();
+			
+			towns.clear();
+			units.clear();
+		}
+		_CrtDumpMemoryLeaks();
+		return 0;
 	}
-    _CrtDumpMemoryLeaks();
-    return 0;
 }
