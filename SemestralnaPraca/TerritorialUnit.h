@@ -160,6 +160,24 @@ public:
             std::to_string(population2024_);
     }
 
+    std::string toStringFemale() const {
+        return name_ + ", Kod: " + std::to_string(code_) + ", Populacia zien: " +
+            std::to_string(female2020_) + ", " +
+            std::to_string(female2021_) + ", " +
+            std::to_string(female2022_) + ", " +
+            std::to_string(female2023_) + ", " +
+            std::to_string(female2024_);
+    }
+
+    std::string toStringMale() const {
+        return name_ + ", Kod: " + std::to_string(code_) + ", Populacia muzov: " +
+            std::to_string(male2020_) + ", " +
+            std::to_string(male2021_) + ", " +
+            std::to_string(male2022_) + ", " +
+            std::to_string(male2023_) + ", " +
+            std::to_string(male2024_);
+    }
+
     size_t getParentCode() const {
         if (type_ == "country") return 0;
         if (type_ == "commune") return communeParentCode_;

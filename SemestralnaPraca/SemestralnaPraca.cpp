@@ -224,9 +224,25 @@ int main() {
                                     std::cin >> year;
                                     std::cout << "M (muži) / F (ženy): ";
                                     std::cin >> gender;
-                                    bool male = (gender == 'M' || gender == 'm');
-                                    sorter.sortByGenderPopulation(results, year, male);
+                                    bool isMale = (gender == 'M' || gender == 'm');
+                                    sorter.sortByGenderPopulation(results, year, isMale);
+                                    std::cout << "\nZoradené výsledky:\n";
+                                    if (isMale)
+                                    {
+                                        for (size_t i = 0; i < results->size(); ++i) {
+                                            const auto* unit = results->access(i);
+                                            std::cout << " - " << unit->toStringMale() << "\n";
+                                        }
+                                    } else
+                                    {
+                                        for (size_t i = 0; i < results->size(); ++i) {
+                                            const auto* unit = results->access(i);
+                                            std::cout << " - " << unit->toStringFemale() << "\n";
+                                        }
+                                    }
+
                                     break;
+                                        
                                 }
                                 case 4:
                                     sorting = false;
@@ -236,11 +252,6 @@ int main() {
                                     continue;
                                 }
 
-                                std::cout << "\nZoradené výsledky:\n";
-                                for (size_t i = 0; i < results->size(); ++i) {
-                                    const auto* unit = results->access(i);
-                                    std::cout << " - " << unit->toString() << "\n";
-                                }
                             }
 
                             delete results;
