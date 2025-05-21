@@ -23,7 +23,7 @@ int main() {
 		std::vector<Town> towns = Reader::readData();
 		ds::adt::ImplicitList<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
 
-		auto* tree = TreeBuilder::buildTree(units); //tu
+		auto* tree = TreeBuilder::buildTree(units);
 		UnitTable unitTable;
 		std::function<void(ds::adt::MultiwayTree<TerritorialUnit>::Node*)> insertAll;
 		insertAll = [&](auto* node) {
@@ -36,18 +36,18 @@ int main() {
 		insertAll(tree->accessRoot());
 
 
-		TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable); //tu
+		TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable);
 
 		Reader::aggregateTree(*tree, tree->accessRoot());
-
+        HierarchyIterator iterator(tree);
 		bool running = true;
         while (running) {
 
-            std::cout << "\n=== MAIN MENU ===\n";
-            std::cout << "1. Zadanie 1 (Town filters)\n";
-            std::cout << "2. Zadanie 2 a 3 (Territorial hierarchy)\n";
+            std::cout << "MAIN MENU:\n";
+            std::cout << "1. Filtrovanie obcí podľa predikátov\n";
+            std::cout << "2. Hierarchia, sorting a tabuľka jednotiek\n";
             std::cout << "3. Exit\n";
-            std::cout << "Choose: ";
+            std::cout << "Výber: ";
 
             int mainChoice;
             std::cin >> mainChoice;
@@ -110,7 +110,7 @@ int main() {
             case 2: {
                 size_t totalNodes = tree->nodeCount();
                 std::cout << "V hierarchii sa nachádza " << totalNodes << " vrcholov.\n";
-                HierarchyIterator iterator(tree);
+                
                 bool iterating = true;
 
                 while (iterating) {
@@ -322,14 +322,15 @@ int main() {
 
             case 3:
                 running = false;
+                delete tree;        // ak sa nieco pokazi toto dat nizsie, nefunguje main menu potom ale spravne pozor
+                towns.clear();      // ak sa nieco pokazi toto dat nizsie, nefunguje main menu potom ale spravne pozor
+                units.clear();       //ak sa nieco pokazi toto dat nizsie, nefunguje main menu potom ale spravne pozor
                 break;
 
             default:
                 std::cout << "Invalid option.\n";
             }
-            delete tree;
-            towns.clear();
-            units.clear();
+            // SEM
         }
 		
 	}
