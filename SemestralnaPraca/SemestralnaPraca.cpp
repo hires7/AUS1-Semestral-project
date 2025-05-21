@@ -11,6 +11,8 @@
 #include "HierarchyIterator.h"
 #include "Sorter.h"
 #include "UnitFilter.h"
+#include "UnitTable.h"
+#include "TerritorialUnit.h"
 
 int main() {
 	{
@@ -21,7 +23,7 @@ int main() {
 		std::vector<Town> towns = Reader::readData();
 		ds::adt::ImplicitList<TerritorialUnit> units = Reader::parseHierarchy("uzemie.csv");
 
-		auto* tree = TreeBuilder::buildTree(units);
+		auto* tree = TreeBuilder::buildTree(units); //tu
 		UnitTable unitTable;
 		std::function<void(ds::adt::MultiwayTree<TerritorialUnit>::Node*)> insertAll;
 		insertAll = [&](auto* node) {
@@ -34,76 +36,76 @@ int main() {
 		insertAll(tree->accessRoot());
 
 
-		TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable);
+		TreeBuilder::assignTowns(*tree, towns, "obce.csv", unitTable); //tu
 
 		Reader::aggregateTree(*tree, tree->accessRoot());
 
 		bool running = true;
-		while (running) {
+        while (running) {
 
-			std::cout << "\n=== MAIN MENU ===\n";
-			std::cout << "1. Zadanie 1 (Town filters)\n";
-			std::cout << "2. Zadanie 2 a 3 (Territorial hierarchy)\n";
-			std::cout << "3. Exit\n";
-			std::cout << "Choose: ";
+            std::cout << "\n=== MAIN MENU ===\n";
+            std::cout << "1. Zadanie 1 (Town filters)\n";
+            std::cout << "2. Zadanie 2 a 3 (Territorial hierarchy)\n";
+            std::cout << "3. Exit\n";
+            std::cout << "Choose: ";
 
-			int mainChoice;
-			std::cin >> mainChoice;
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            int mainChoice;
+            std::cin >> mainChoice;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-			switch (mainChoice) {
-			case 1: {
-				std::vector<Town> filteredTowns;
-				int choice;
-				do {
-					std::cout << "\n1. containsStr\n2. hasMaxResidents\n3. hasMinResidents\n4. Back\nChoose: ";
-					std::cin >> choice;
-					std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            switch (mainChoice) {
+            case 1: {
+                std::vector<Town> filteredTowns;
+                int choice;
+                do {
+                    std::cout << "\n1. containsStr\n2. hasMaxResidents\n3. hasMinResidents\n4. Back\nChoose: ";
+                    std::cin >> choice;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-					switch (choice) {
-					case 1: {
-						std::string search;
-						std::cout << "Enter search string: ";
-						std::getline(std::cin, search);
-						filteredTowns.clear();
-						Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
-							Filter::containsStr(search));
-						break;
-					}
-					case 2: {
-						int year; size_t max;
-						std::cout << "Year (2020-2024): ";
-						std::cin >> year;
-						std::cout << "Max population: ";
-						std::cin >> max;
-						std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-						filteredTowns.clear();
-						Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
-							Filter::hasMaxResidents(year, max));
-						break;
-					}
-					case 3: {
-						int year; size_t min;
-						std::cout << "Year (2020-2024): ";
-						std::cin >> year;
-						std::cout << "Min population: ";
-						std::cin >> min;
-						std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-						filteredTowns.clear();
-						Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
-							Filter::hasMinResidents(year, min));
-						break;
-					}
-					}
+                    switch (choice) {
+                    case 1: {
+                        std::string search;
+                        std::cout << "Enter search string: ";
+                        std::getline(std::cin, search);
+                        filteredTowns.clear();
+                        Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
+                            Filter::containsStr(search));
+                        break;
+                    }
+                    case 2: {
+                        int year; size_t max;
+                        std::cout << "Year (2020-2024): ";
+                        std::cin >> year;
+                        std::cout << "Max population: ";
+                        std::cin >> max;
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        filteredTowns.clear();
+                        Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
+                            Filter::hasMaxResidents(year, max));
+                        break;
+                    }
+                    case 3: {
+                        int year; size_t min;
+                        std::cout << "Year (2020-2024): ";
+                        std::cin >> year;
+                        std::cout << "Min population: ";
+                        std::cin >> min;
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        filteredTowns.clear();
+                        Filter::apply(towns.begin(), towns.end(), std::back_inserter(filteredTowns),
+                            Filter::hasMinResidents(year, min));
+                        break;
+                    }
+                    }
 
-					if (choice >= 1 && choice <= 3) {
-						std::cout << "\nVysledky (" << filteredTowns.size() << "):\n";
-						for (const auto& t : filteredTowns)
-							std::cout << " - " << t.toString() << "\n";
-					}
-				} while (choice != 4);
-				break;
-			}
+                    if (choice >= 1 && choice <= 3) {
+                        std::cout << "\nVysledky (" << filteredTowns.size() << "):\n";
+                        for (const auto& t : filteredTowns)
+                            std::cout << " - " << t.toString() << "\n";
+                    }
+                } while (choice != 4);
+                break;
+            }
 
             case 2: {
                 size_t totalNodes = tree->nodeCount();
@@ -197,6 +199,7 @@ int main() {
                             bool sorting = true;
                             Sorter sorter;
                             while (sorting) {
+                                bool maleFemalePrint = false;
                                 std::cout << "\n--- Zoradiť výsledky ---\n";
                                 std::cout << "1. Podľa mena\n";
                                 std::cout << "2. Podľa celkovej populácie\n";
@@ -218,6 +221,7 @@ int main() {
                                     break;
                                 }
                                 case 3: {
+                                    maleFemalePrint = true;
                                     int year;
                                     char gender;
                                     std::cout << "Zadaj rok: ";
@@ -233,7 +237,8 @@ int main() {
                                             const auto* unit = results->access(i);
                                             std::cout << " - " << unit->toStringMale() << "\n";
                                         }
-                                    } else
+                                    }
+                                    else
                                     {
                                         for (size_t i = 0; i < results->size(); ++i) {
                                             const auto* unit = results->access(i);
@@ -242,7 +247,7 @@ int main() {
                                     }
 
                                     break;
-                                        
+
                                 }
                                 case 4:
                                     sorting = false;
@@ -251,8 +256,15 @@ int main() {
                                     std::cout << "Neplatná možnosť.\n";
                                     continue;
                                 }
-
+                                if (!maleFemalePrint)
+                                {
+                                    for (size_t i = 0; i < results->size(); ++i) {
+                                        const auto* unit = results->access(i);
+                                        std::cout << " - " << unit->toString() << "\n";
+                                    }
+                                }
                             }
+
 
                             delete results;
                         }
@@ -303,23 +315,24 @@ int main() {
                     }
                 }
 
-                delete tree;
+                
                 break;
             }
 
-				
-			case 3:
-				running = false;
-				break;
 
-			default:
-				std::cout << "Invalid option.\n";
-			}
-			
-			towns.clear();
-			units.clear();
-		}
-		_CrtDumpMemoryLeaks();
-		return 0;
+            case 3:
+                running = false;
+                break;
+
+            default:
+                std::cout << "Invalid option.\n";
+            }
+            delete tree;
+            towns.clear();
+            units.clear();
+        }
+		
 	}
+    _CrtDumpMemoryLeaks();
+    return 0;
 }

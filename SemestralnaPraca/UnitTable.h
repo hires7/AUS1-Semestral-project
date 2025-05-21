@@ -4,7 +4,6 @@
 #include "libds/adt/table.h"
 #include "libds/adt/list.h"
 #include <string>
-#include <iostream>
 
 class UnitTable {
 private:
