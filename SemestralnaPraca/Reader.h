@@ -126,25 +126,19 @@ public:
     }
 
     static void aggregateTree(ds::adt::MultiwayTree<TerritorialUnit>& tree,
-        ds::adt::MultiwayTree<TerritorialUnit>::Node* node) {
+        ds::adt::MultiwayTree<TerritorialUnit>::Node* node)
+    {
         if (!node) return;
 
-        std::vector<TerritorialUnit*> children;
+        ds::adt::ImplicitList<TerritorialUnit*> children;
 
         size_t count = tree.degree(*node);
         for (size_t i = 0; i < count; ++i) {
             auto* child = tree.accessSon(*node, i);
             aggregateTree(tree, child);
-            children.push_back(&child->data_);
+            children.insertLast(&child->data_);
         }
 
-        
-        /*for (const auto& ch : children) {
-            std::cout << "[CHILD] " << ch->getName() << " | Pop 2020: " << ch->getPopulation(2020) << "\n";
-        }*/
-
-        /*std::cout << "[AGGREGATE] Vrchol '" << node->data_.getName()
-            << "' bude agregova " << children.size() << " detí\n";*/
         node->data_.aggregateFromChildren(children);
     }
 

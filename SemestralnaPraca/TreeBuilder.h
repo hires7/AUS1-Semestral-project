@@ -99,7 +99,7 @@ public:
             }
 
             if (!townPtr) {
-                std::cerr << "[!] Town not found: " << name << " (code: " << code << ")\n";
+                std::cerr << "Obec nenájdená: " << name << " ( " << code << ")\n";
                 continue;
             }
 
@@ -119,7 +119,7 @@ public:
             search(tree.accessRoot());
 
             if (!findNodeWithCode) {
-                std::cerr << "[!] Region node not found for code: " << regionCode << "\n";
+                std::cerr << "Chyba pri kode: " << regionCode << "\n";
                 continue;
             }
 

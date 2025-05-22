@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include "Town.h"
+#include "libds/adt/list.h"
 
 class TerritorialUnit {
 private:
@@ -144,9 +144,10 @@ public:
     void attachTown(Town* town) { townData_ = town; }
     Town* getTownData() const { return townData_; }
 
-    void aggregateFromChildren(const std::vector<TerritorialUnit*>& children) {
-        for (const auto* child : children) {
-            this->aggregateChild(*child); 
+    void aggregateFromChildren(ds::adt::ImplicitList<TerritorialUnit*>& children) {
+        for (size_t i = 0; i < children.size(); ++i) {
+            const auto* child = children.access(i);
+            this->aggregateChild(*child);
         }
     }
 
